@@ -1,0 +1,14 @@
+//
+// Created by Ilias on 22-Mar-19.
+//
+
+#ifndef SIGMODBENCHMARKS_STREAMREADER_H
+#define SIGMODBENCHMARKS_STREAMREADER_H
+
+
+class StreamReader {
+
+};
+
+
+#endif //SIGMODBENCHMARKS_STREAMREADER_H

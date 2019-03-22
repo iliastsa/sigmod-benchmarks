@@ -8,52 +8,22 @@
 #include <fcntl.h>
 
 class FileReader {
-    typedef std::string string;
 protected:
     int fd;
-    string   filename;
-    uint64_t file_size;
+
+    uint64_t from;
+    uint64_t to;
     uint64_t chunk_size;
 
+    unsigned char *buffer;
+
 public:
-    FileReader(string filename, uint64_t chunk_size = 0) : filename(filename), chunk_size(chunk_size) {
-        struct stat sb;
-
-        if (stat(filename.c_str(), &sb) == -1) {
-            perror("stat");
-            exit(EXIT_FAILURE);
-        }
-
-        // TODO: Try stream reader
-        fd = open(filename.c_str(), O_RDONLY);
-
-        // TODO: Check prefered IO block size: https://linux.die.net/man/2/fstat
-        file_size = static_cast<uint64_t>(sb.st_size);
-
-        if (chunk_size == 0)
-            this->chunk_size = file_size;
-    }
+    FileReader(int fd, uint64_t from, uint64_t to, uint64_t chunk_size) :
+            fd(fd), from(from), to(to), chunk_size(chunk_size), buffer(nullptr) {}
 
     virtual ~FileReader() {};
 
-    virtual unsigned char *read_file() {return nullptr;};
-
-    uint64_t get_chunk_size() const {
-        return chunk_size;
-    }
-
-    void set_chunk_size(uint64_t chunk_size) {
-        this->chunk_size = chunk_size;
-    }
-
-    uint64_t getFile_size() const {
-        return file_size;
-    }
-
-    void setFile_size(uint64_t file_size) {
-        FileReader::file_size = file_size;
-    }
+    virtual unsigned char *next(uint64_t *sz) {return nullptr;};
 };
-
 
 #endif

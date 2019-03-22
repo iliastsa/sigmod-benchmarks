@@ -5,17 +5,16 @@
 #include "FileReader.h"
 
 class MMapReader : public FileReader {
-    typedef std::string string;
+private:
+    uint64_t map_size;
 
-    public:
-    MMapReader(string filename, uint64_t chunk_size = 0) : FileReader(filename, chunk_size) {}
+public:
+    MMapReader(int fd, uint64_t from, uint64_t to, uint64_t chunk_size) :
+            FileReader(fd, from, to, chunk_size), map_size(0) {}
 
-    virtual unsigned char* read_file();
+    virtual unsigned char* next(uint64_t *sz);
 
     virtual ~MMapReader();
-
-private:
-    void *mem;
 };
 
 

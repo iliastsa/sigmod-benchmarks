@@ -6,16 +6,19 @@
 #include "ReadReader.h"
 
 ReadReader::~ReadReader() {
-
+    free(buffer);
 }
 
-unsigned char* ReadReader::read_file() {
-    unsigned char* buf = static_cast<unsigned char*>(malloc(file_size));
-
+unsigned char* ReadReader::next(uint64_t *sz) {
     uint64_t bytes_read = 0;
-    while (bytes_read < file_size) {
-        bytes_read += read(fd, buf + bytes_read, file_size - bytes_read);
-    }
 
-    return buf;
+    uint64_t read_amt = to - from < chunk_size ? to - from : chunk_size;
+
+    while (bytes_read < read_amt)
+        bytes_read += read(fd, buffer + bytes_read, read_amt);
+
+    *sz = read_amt;
+    from += bytes_read;
+
+    return read_amt == 0 ? nullptr : buffer;
 }
