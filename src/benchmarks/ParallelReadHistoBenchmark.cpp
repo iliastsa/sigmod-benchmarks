@@ -42,6 +42,8 @@ void ParallelReadHistoBenchmark::run() {
         exit(EXIT_FAILURE);
     }
 
+    cout << "All jobs in queue, waiting..." << endl;
+
     thread_pool.wait_all();
 
     timer.stop();
