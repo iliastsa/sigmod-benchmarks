@@ -14,6 +14,8 @@ HistogramTask::HistogramTask(uint64_t* histogram, int fd, uint64_t from, uint64_
 }
 
 void HistogramTask::run() {
+    cout << "Start!" << endl;
+
     Partition partition(histogram);
 
     uint64_t sz;
