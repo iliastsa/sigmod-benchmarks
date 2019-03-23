@@ -1,8 +1,6 @@
-//
-// Created by Ilias on 22-Mar-19.
-//
-
 #include <unistd.h>
+#include <cstdlib>
+
 #include "ReadReader.h"
 
 ReadReader::~ReadReader() {

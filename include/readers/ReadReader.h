@@ -1,6 +1,7 @@
 #ifndef SIGMODBENCHMARKS_READREADER_H
 #define SIGMODBENCHMARKS_READREADER_H
 
+#include <cstdlib>
 #include "FileReader.h"
 
 class ReadReader : public FileReader {

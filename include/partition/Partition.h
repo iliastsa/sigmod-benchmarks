@@ -1,16 +1,12 @@
-//
-// Created by Ilias on 22-Mar-19.
-//
-
 #ifndef SIGMODBENCHMARKS_PARTITION_H
 #define SIGMODBENCHMARKS_PARTITION_H
-
 
 #include <stdint-gcc.h>
 #include <cstdlib>
 
 class Partition {
 private:
+    bool owner;
     uint64_t *histogram;
 
     uint16_t get_partition(const unsigned char *key) {
@@ -28,6 +24,7 @@ private:
 
 public:
     Partition();
+    Partition(uint64_t* histogram);
     ~Partition();
 
     uint64_t* get_histogram() const;

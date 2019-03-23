@@ -1,6 +1,6 @@
 #include <sys/mman.h>
 
-#include "MMapReader.h"
+#include "../include/readers/MMapReader.h"
 
 
 unsigned char* MMapReader::next(uint64_t* sz){

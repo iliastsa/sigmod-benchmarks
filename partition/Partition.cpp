@@ -1,12 +1,10 @@
-//
-// Created by Ilias on 22-Mar-19.
-//
-
 #include "Partition.h"
 
-Partition::Partition(){
+Partition::Partition() : owner(true) {
     histogram = static_cast<uint64_t*>(calloc(1024, sizeof(uint64_t)));
 }
+
+Partition::Partition(uint64_t* histogram) : owner(false), histogram(histogram) {}
 
 uint64_t* Partition::get_histogram() const {
     return histogram;
@@ -20,5 +18,6 @@ void Partition::update_histogram(unsigned char* buf, uint64_t size) {
 }
 
 Partition::~Partition() {
-    free(histogram);
+    if (owner)
+        free(histogram);
 }
