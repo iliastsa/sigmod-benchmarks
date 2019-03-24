@@ -3,6 +3,7 @@
 #include <Partition.h>
 #include <Timer.h>
 #include <HistogramTask.h>
+#include <cinttypes>
 
 #include "ThreadPool.h"
 #include "ParallelReadHistoBenchmark.h"
@@ -24,6 +25,8 @@ void ParallelReadHistoBenchmark::run() {
     Timer timer;
 
     timer.run();
+
+    P_DEBUG("File size: %" PRIu64 "\n", file_size);
 
     if (file_size % n_threads == 0) {
         uint64_t segment_size = file_size/n_threads;

@@ -20,7 +20,7 @@ int main(int argc, char **argv) {
 //        cout << "No file provided" << endl;
 //        exit(EXIT_FAILURE);
 //    }
-//
+
 //    int fd;
 //    uint64_t file_size;
 //
@@ -28,7 +28,7 @@ int main(int argc, char **argv) {
 //
 //    // Note: Chunk size must be a multiple of 100z`
 //    //FileReader *fr = new MMapReader(fd, 0, file_size, file_size);
-//    FileReader *fr = new ReadReader(fd, 0 ,file_size, 4000);
+//    FileReader *fr = new ReadReader(fd, 0 ,file_size, file_size);
 //
 //    Partition partition;
 //
@@ -54,7 +54,7 @@ int main(int argc, char **argv) {
 //
 //    cout << "Tuples read: " << sum  << endl;
 
-    Benchmark *benchmark = new ParallelReadHistoBenchmark(argv[1], 4);
+    Benchmark *benchmark = new ParallelReadHistoBenchmark(argv[1], 16);
     benchmark->run();
 
     return 0;
