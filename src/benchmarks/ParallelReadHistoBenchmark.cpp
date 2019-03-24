@@ -4,7 +4,7 @@
 #include <Timer.h>
 #include <HistogramTask.h>
 
-#include "thread_pool.h"
+#include "ThreadPool.h"
 #include "ParallelReadHistoBenchmark.h"
 #include "Utils.h"
 
@@ -14,12 +14,12 @@ ParallelReadHistoBenchmark::ParallelReadHistoBenchmark(char* filename, int n_thr
     f_init(filename, &fd, &file_size);
 }
 
-ParallelReadHistoBenchmark::~ParallelReadHistoBenchmark() {}
+ParallelReadHistoBenchmark::~ParallelReadHistoBenchmark() = default;
 
 void ParallelReadHistoBenchmark::run() {
-    thread_pool thread_pool(n_threads);
+    ThreadPool thread_pool(n_threads);
 
-    auto global_histogram = static_cast<uint64_t*>(calloc(n_threads * 1024, sizeof(uint64_t)));
+    auto global_histogram = static_cast<uint64_t*>(calloc(static_cast<size_t>(n_threads * 1024), sizeof(uint64_t)));
 
     Timer timer;
 

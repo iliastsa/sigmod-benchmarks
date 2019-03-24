@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include "thread_pool.h"
+#include "ThreadPool.h"
 #include "Partition.h"
 #include "ReadReader.h"
 #include "FileReader.h"
