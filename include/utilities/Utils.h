@@ -2,6 +2,7 @@
 #define SIGMODBENCHMARKS_UTILS_H
 
 #include <cstdio>
+#include <cstdint>
 
 // Useful macros
 #if defined(DEBUG)

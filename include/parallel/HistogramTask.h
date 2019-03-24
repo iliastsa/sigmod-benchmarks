@@ -4,6 +4,7 @@
 #include "ThreadPool.h"
 #include "FileReader.h"
 
+
 class HistogramTask : public ThreadPool::task {
 private:
     FileReader* reader;

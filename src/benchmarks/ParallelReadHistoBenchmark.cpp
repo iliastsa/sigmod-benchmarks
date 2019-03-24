@@ -37,7 +37,7 @@ void ParallelReadHistoBenchmark::run() {
             uint64_t from = i * segment_size;
             uint64_t to = (i + 1) * segment_size;
 
-            thread_pool.add_task(new HistogramTask(local_hist, fd, from, to, to - from));
+            thread_pool.add_task(new HistogramTask(local_hist, fd, from, to, 5000));
         }
     }
     else {

@@ -5,6 +5,7 @@
 #include <fcntl.h>
 #include <Benchmark.h>
 #include <ParallelReadHistoBenchmark.h>
+#include <aio.h>
 
 #include "FileReader.h"
 #include "MMapReader.h"
@@ -54,7 +55,7 @@ int main(int argc, char **argv) {
 //
 //    cout << "Tuples read: " << sum  << endl;
 
-    Benchmark *benchmark = new ParallelReadHistoBenchmark(argv[1], 16);
+    Benchmark *benchmark = new ParallelReadHistoBenchmark(argv[1], 32);
     benchmark->run();
 
     return 0;
