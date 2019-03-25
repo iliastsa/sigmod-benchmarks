@@ -51,7 +51,7 @@ void ParallelReadHistoBenchmark::run() {
 
     timer.stop();
 
-    cout << "IO time: " << std::fixed << timer.elapsedMilliseconds() << " ms" << endl;
+    cout << "Total time: " << std::fixed << timer.elapsedMilliseconds() << " ms" << endl;
 
     // Verify
     uint64_t sum = 0;
