@@ -5,6 +5,8 @@
 
 namespace Constants {
     const int N_THREADS = 40;
+    const uint64_t PAGE_SIZE = 4096;
+    const uint64_t PAGE_SHIFT_AMT = 12;
 
     const uint16_t N_PARTITIONS = 1024;
 

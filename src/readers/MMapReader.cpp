@@ -1,5 +1,6 @@
 #include <sys/mman.h>
 #include <unistd.h>
+#include <Constants.h>
 
 #include "MMapReader.h"
 
@@ -7,7 +8,7 @@ MMapReader::MMapReader(int fd, uint64_t from, uint64_t to, uint64_t chunk_size) 
     FileReader(fd, from, to, chunk_size) {}
 
 uint64_t MMapReader::get_page_num(uint64_t num) const {
-    return num >> 12;
+    return num >> Constants::PAGE_SHIFT_AMT;
 }
 
 unsigned char* MMapReader::next(uint64_t* sz){

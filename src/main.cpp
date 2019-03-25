@@ -6,6 +6,9 @@
 #include <cstring>
 #include <unistd.h>
 #include <sys/mman.h>
+#include <iostream>
+
+using namespace std;
 
 int main(int argc, char **argv) {
 //    Benchmark *parallel_bench = new ParallelReadHistoBenchmark(argv[1], Constants::N_THREADS);
