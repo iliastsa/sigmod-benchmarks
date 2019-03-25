@@ -4,6 +4,11 @@
 #include <Timer.h>
 #include <HistogramTask.h>
 #include <cinttypes>
+#include <unistd.h>
+#include <fcntl.h>
+#include <MMapReader.h>
+#include <ASyncReader.h>
+#include <Constants.h>
 
 #include "ThreadPool.h"
 #include "ParallelReadHistoBenchmark.h"
@@ -20,7 +25,7 @@ ParallelReadHistoBenchmark::~ParallelReadHistoBenchmark() = default;
 void ParallelReadHistoBenchmark::run() {
     ThreadPool thread_pool(n_threads);
 
-    auto global_histogram = static_cast<uint64_t*>(calloc(static_cast<size_t>(n_threads * 1024), sizeof(uint64_t)));
+    auto global_histogram = static_cast<uint64_t*>(calloc(static_cast<size_t>(n_threads * Constants::N_PARTITIONS), sizeof(uint64_t)));
 
     Timer timer;
 
@@ -32,12 +37,12 @@ void ParallelReadHistoBenchmark::run() {
         uint64_t segment_size = file_size/n_threads;
 
         for (int i = 0; i < n_threads; ++i) {
-            uint64_t* local_hist = global_histogram + i * 1024;
+            uint64_t* local_hist = global_histogram + i * Constants::N_PARTITIONS;
 
             uint64_t from = i * segment_size;
             uint64_t to = (i + 1) * segment_size;
 
-            thread_pool.add_task(new HistogramTask<ReadReader>(local_hist, fd, from, to, 5000));
+            thread_pool.add_task(new HistogramTask<ReadReader>(local_hist, fd, from, to, Constants::CHUNK_SIZE));
         }
     }
     else {
@@ -55,7 +60,7 @@ void ParallelReadHistoBenchmark::run() {
 
     // Verify
     uint64_t sum = 0;
-    for (uint64_t i = 0; i < n_threads * 1024; ++i)
+    for (uint64_t i = 0; i < n_threads * Constants::N_PARTITIONS; ++i)
         sum += global_histogram[i];
 
     cout << "Tuples read: " << sum  << endl;

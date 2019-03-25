@@ -1,29 +1,16 @@
-#include <iostream>
-#include <cstdlib>
-#include <sys/mman.h>
-#include <sys/stat.h>
-#include <fcntl.h>
 #include <Benchmark.h>
-#include <ParallelReadHistoBenchmark.h>
-#include <aio.h>
 #include <SequentialReadHistoBenchmark.h>
-
-#include "FileReader.h"
-#include "MMapReader.h"
-#include "Timer.h"
-#include "ReadReader.h"
-#include "Partition.h"
-#include "Utils.h"
-
-using namespace std;
+#include <ParallelReadHistoBenchmark.h>
+#include <Constants.h>
 
 int main(int argc, char **argv) {
-
-    Benchmark *sequential_bench = new SequentialReadHistoBenchmark(argv[1]);
-    sequential_bench->run();
-
-    Benchmark *parallel_bench = new ParallelReadHistoBenchmark(argv[1], 32);
+    Benchmark *parallel_bench = new ParallelReadHistoBenchmark(argv[1], Constants::N_THREADS);
     parallel_bench->run();
+    delete parallel_bench;
+
+//    Benchmark *sequential_bench = new SequentialReadHistoBenchmark(argv[1]);
+//    sequential_bench->run();
+//    delete sequential_bench;
 
     return 0;
 }
