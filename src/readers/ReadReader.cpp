@@ -12,6 +12,7 @@ ReadReader::ReadReader(int fd, uint64_t from, uint64_t to, uint64_t chunk_size) 
 
 ReadReader::~ReadReader() {
     free(buffer);
+    close(fd);
 }
 
 unsigned char* ReadReader::next(uint64_t *sz) {

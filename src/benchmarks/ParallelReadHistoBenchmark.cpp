@@ -16,7 +16,9 @@
 
 using namespace std;
 
-ParallelReadHistoBenchmark::ParallelReadHistoBenchmark(char* filename, int n_threads) : n_threads(n_threads) {
+ParallelReadHistoBenchmark::ParallelReadHistoBenchmark(char* filename, int n_threads) :
+        n_threads(n_threads), filename(filename)
+{
     f_init(filename, &fd, &file_size);
 }
 
@@ -36,13 +38,17 @@ void ParallelReadHistoBenchmark::run() {
     if (file_size % n_threads == 0) {
         uint64_t segment_size = file_size/n_threads;
 
+        int fd;
+
         for (int i = 0; i < n_threads; ++i) {
             uint64_t* local_hist = global_histogram + i * Constants::N_PARTITIONS;
 
             uint64_t from = i * segment_size;
             uint64_t to = (i + 1) * segment_size;
 
-            thread_pool.add_task(new HistogramTask<ReadReader>(local_hist, fd, from, to, Constants::CHUNK_SIZE));
+            fd = open(filename, O_RDONLY);
+
+            thread_pool.add_task(new HistogramTask<ASyncReader>(local_hist, fd, from, to, Constants::CHUNK_SIZE));
         }
     }
     else {

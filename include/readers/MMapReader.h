@@ -8,9 +8,9 @@ class MMapReader : public FileReader {
 private:
     uint64_t map_size;
 
+    uint64_t get_page_num(uint64_t num) const;
 public:
-    MMapReader(int fd, uint64_t from, uint64_t to, uint64_t chunk_size) :
-            FileReader(fd, from, to, chunk_size), map_size(0) {}
+    MMapReader(int fd, uint64_t from, uint64_t to, uint64_t chunk_size);
 
     virtual unsigned char* next(uint64_t *sz);
 

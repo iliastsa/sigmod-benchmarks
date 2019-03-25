@@ -7,6 +7,8 @@ class ParallelReadHistoBenchmark : public Benchmark {
 private:
     int fd;
     int n_threads;
+
+    const char *filename;
     uint64_t file_size;
 
 public:
