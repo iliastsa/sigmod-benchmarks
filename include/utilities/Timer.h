@@ -24,6 +24,7 @@ public:
         running = false;
     }
 
+
     double elapsedNanoseconds() {
         Clock::time_point end_time;
 

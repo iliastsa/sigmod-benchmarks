@@ -50,7 +50,7 @@ unsigned char* ASyncReader::blocking_next(uint64_t* sz, unsigned char *buffer) {
     uint64_t read_amt = to - from < chunk_size ? to - from : chunk_size;
 
     while (bytes_read < read_amt) {
-        bytes_read += pread(fd, buffer + bytes_read, read_amt, from + bytes_read);
+        bytes_read += pread(fd, buffer + bytes_read, read_amt - bytes_read, from + bytes_read);
     }
     *sz = read_amt;
     from += bytes_read;
