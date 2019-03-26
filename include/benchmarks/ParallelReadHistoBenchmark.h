@@ -1,6 +1,7 @@
 #ifndef SIGMODBENCHMARKS_PARALLELREADHISTOBENCHMARK_H
 #define SIGMODBENCHMARKS_PARALLELREADHISTOBENCHMARK_H
 
+#include <cstdint>
 #include "Benchmark.h"
 
 class ParallelReadHistoBenchmark : public Benchmark {

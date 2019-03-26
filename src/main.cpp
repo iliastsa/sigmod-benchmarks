@@ -8,6 +8,7 @@
 #include <sys/mman.h>
 #include <iostream>
 #include <SingleMMapHistoBenchmark.h>
+#include <WriteBenchmark.h>
 
 using namespace std;
 
@@ -15,6 +16,12 @@ int main(int argc, char **argv) {
 //    Benchmark *parallel_bench = new ParallelReadHistoBenchmark(argv[1], Constants::N_THREADS);
 //    parallel_bench->run();
 //    delete parallel_bench;
+
+    uint64_t fs = 10000000000;
+
+    Benchmark *parallel_bench = new WriteBenchmark(argv[2], fs, Constants::N_THREADS);
+    parallel_bench->run();
+    delete parallel_bench;
 
 //    Benchmark *parallel_bench = new SingleMMapHistoBenchmark(argv[1], Constants::N_THREADS);
 //    parallel_bench->run();
