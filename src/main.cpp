@@ -7,11 +7,16 @@
 #include <unistd.h>
 #include <sys/mman.h>
 #include <iostream>
+#include <SingleMMapHistoBenchmark.h>
 
 using namespace std;
 
 int main(int argc, char **argv) {
-    Benchmark *parallel_bench = new ParallelReadHistoBenchmark(argv[1], Constants::N_THREADS);
+//    Benchmark *parallel_bench = new ParallelReadHistoBenchmark(argv[1], Constants::N_THREADS);
+//    parallel_bench->run();
+//    delete parallel_bench;
+
+    Benchmark *parallel_bench = new SingleMMapHistoBenchmark(argv[1], Constants::N_THREADS);
     parallel_bench->run();
     delete parallel_bench;
 

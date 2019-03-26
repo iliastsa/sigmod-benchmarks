@@ -1,6 +1,6 @@
 #include <ThreadPool.h>
 #include <Timer.h>
-#include <HistogramTask.h>
+#include <InterleavedHistogramTask.h>
 #include <ReadReader.h>
 #include <MMapReader.h>
 #include <ASyncReader.h>
@@ -21,7 +21,7 @@ void SequentialReadHistoBenchmark::run() {
 
     timer.run();
 
-    HistogramTask<ASyncReader> task(histogram, fd, 0, file_size, Constants::CHUNK_SIZE);
+    InterleavedHistogramTask<ASyncReader> task(histogram, fd, 0, file_size, Constants::CHUNK_SIZE);
     task.run();
 
     timer.stop();

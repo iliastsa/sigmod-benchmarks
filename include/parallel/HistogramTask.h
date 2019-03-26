@@ -1,36 +1,25 @@
-#ifndef SIGMODBENCHMARKS_HISTOGRAMTASK_H
-#define SIGMODBENCHMARKS_HISTOGRAMTASK_H
+#ifndef SIGMODBENCHMARKS_TESTTASK_H
+#define SIGMODBENCHMARKS_TESTTASK_H
 
+#include <ThreadPool.h>
+#include <cstdint>
 #include <Partition.h>
-#include "ThreadPool.h"
-#include "FileReader.h"
 
-template <class T>
 class HistogramTask : public ThreadPool::task {
 private:
-    FileReader* reader;
+    unsigned char *segment;
     uint64_t *histogram;
 
+    uint64_t segment_size;
 public:
-    HistogramTask(uint64_t* histogram, int fd, uint64_t from, uint64_t to, uint64_t chunk_size) :
-            histogram(histogram)
-    {
-        reader = new T(fd, from, to, chunk_size);
-    }
+    HistogramTask(uint64_t* histogram, unsigned char *segment, uint64_t segment_size) :
+            histogram(histogram), segment(segment), segment_size(segment_size) {}
 
-    ~HistogramTask() final {
-        delete reader;
-    }
 
-    void run() final {
+    void run() {
         Partition partition(histogram);
 
-        uint64_t sz;
-        unsigned char* mem;
-
-        while ((mem = reader->next(&sz)) != nullptr)
-            partition.update_histogram(mem, sz);
-
+        partition.update_histogram(segment, segment_size);
     }
 };
 

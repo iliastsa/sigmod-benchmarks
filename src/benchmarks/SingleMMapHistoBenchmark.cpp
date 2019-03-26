@@ -13,20 +13,22 @@
 #include <HistogramTask.h>
 
 #include "ThreadPool.h"
-#include "ParallelReadHistoBenchmark.h"
+#include "SingleMMapHistoBenchmark.h"
 #include "Utils.h"
 
 using namespace std;
 
-ParallelReadHistoBenchmark::ParallelReadHistoBenchmark(char* filename, int n_threads) :
+SingleMMapHistoBenchmark::SingleMMapHistoBenchmark(char* filename, int n_threads) :
         n_threads(n_threads), filename(filename)
 {
     f_init(filename, &fd, &file_size);
 }
 
-ParallelReadHistoBenchmark::~ParallelReadHistoBenchmark() = default;
+SingleMMapHistoBenchmark::~SingleMMapHistoBenchmark() {
+    munmap(mem, file_size);
+}
 
-void ParallelReadHistoBenchmark::run() {
+void SingleMMapHistoBenchmark::run() {
     ThreadPool thread_pool(n_threads);
 
     auto global_histogram = static_cast<uint64_t*>(calloc(static_cast<size_t>(n_threads * Constants::N_PARTITIONS), sizeof(uint64_t)));
@@ -40,15 +42,15 @@ void ParallelReadHistoBenchmark::run() {
     if (file_size % n_threads == 0) {
         uint64_t segment_size = file_size/n_threads;
 
+        mem = mmap(nullptr, file_size, PROT_READ, MAP_PRIVATE, fd, 0);
+
         for (int i = 0; i < n_threads; ++i) {
             uint64_t* local_hist = global_histogram + i * Constants::N_PARTITIONS;
 
             uint64_t from = i * segment_size;
-            uint64_t to = (i + 1) * segment_size;
+            unsigned char *local_mem = static_cast<unsigned char*>(mem) + from;
 
-            int fd = open(filename, O_RDONLY);
-
-            thread_pool.add_task(new InterleavedHistogramTask<MMapReader>(local_hist, fd, from, to, Constants::CHUNK_SIZE));
+            thread_pool.add_task(new HistogramTask(local_hist, local_mem, segment_size));
         }
     }
     else {
