@@ -16,9 +16,9 @@ int main(int argc, char **argv) {
 //    parallel_bench->run();
 //    delete parallel_bench;
 
-    Benchmark *parallel_bench = new SingleMMapHistoBenchmark(argv[1], Constants::N_THREADS);
-    parallel_bench->run();
-    delete parallel_bench;
+//    Benchmark *parallel_bench = new SingleMMapHistoBenchmark(argv[1], Constants::N_THREADS);
+//    parallel_bench->run();
+//    delete parallel_bench;
 
 //    int fd = open("test_file", O_RDWR | O_CREAT, (mode_t)0600);
 //    const char *text = "hello";
