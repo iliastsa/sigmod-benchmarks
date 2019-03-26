@@ -16,17 +16,13 @@ unsigned char* MMapReader::next(uint64_t* sz){
 
     munmap(buffer, map_size);
 
-    // TODO: Review this; might not work (mmap might ignore any offset inside the file descriptor)
-    lseek(fd, from, SEEK_SET);
-
-    // Black magic TODO: Review this!
-    uint64_t page_offset = get_page_num(from);
+    uint64_t page_offset = get_page_num(from) * Constants::PAGE_SIZE;
     uint64_t adjust = from - page_offset;
 
-    buffer = static_cast<unsigned char*>(mmap(buffer, read_amt, PROT_READ, MAP_PRIVATE, fd, page_offset));
+    buffer = static_cast<unsigned char*>(mmap(buffer, read_amt + adjust, PROT_READ, MAP_PRIVATE, fd, page_offset));
 
     from += read_amt;
-    map_size = read_amt;
+    map_size = read_amt + adjust;
     *sz = read_amt;
 
     return read_amt == 0 ? nullptr : buffer + adjust;

@@ -48,7 +48,7 @@ void ParallelReadHistoBenchmark::run() {
 
             fd = open(filename, O_RDONLY);
 
-            thread_pool.add_task(new HistogramTask<ASyncReader>(local_hist, fd, from, to, Constants::CHUNK_SIZE));
+            thread_pool.add_task(new HistogramTask<ReadReader>(local_hist, fd, from, to, Constants::CHUNK_SIZE));
         }
     }
     else {
