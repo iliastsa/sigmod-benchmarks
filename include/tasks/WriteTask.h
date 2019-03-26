@@ -5,7 +5,7 @@
 #include <cstdint>
 #include <unistd.h>
 
-class WriteTask : public ThreadPool::task {
+class WriteTask : public ThreadPool::Task {
 private:
     int fd;
 

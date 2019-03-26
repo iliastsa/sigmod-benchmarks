@@ -8,11 +8,11 @@ ThreadPool::task_queue::task_queue() : head(nullptr), tail(nullptr), n_tasks(0) 
     pthread_cond_init(&queue_empty, nullptr);
 };
 
-ThreadPool::task* ThreadPool::task_queue::next() {
+ThreadPool::Task* ThreadPool::task_queue::next() {
     if (n_tasks == 0)
         return nullptr;
 
-    task* ret = head->task;
+    Task* ret = head->task;
     task_queue_node* next = head->next;
 
     delete head;
@@ -23,7 +23,7 @@ ThreadPool::task* ThreadPool::task_queue::next() {
     return ret;
 }
 
-void ThreadPool::task_queue::insert(task* task) {
+void ThreadPool::task_queue::insert(Task* task) {
     task_queue_node *new_node = new task_queue_node(task);
 
     // TODO: Error checking
@@ -86,7 +86,7 @@ ThreadPool::ThreadPool(int n_threads) : running(1), n_threads(n_threads), active
         pthread_create(threads + i, nullptr, thread_run, this);
 }
 
-void ThreadPool::add_task(task* task) {
+void ThreadPool::add_task(Task* task) {
     task_queue.insert(task);
 }
 
@@ -103,7 +103,7 @@ void* ThreadPool::thread_run(void *t_pool) {
         if (pool->running == 0 && pool->task_queue.n_tasks == 0)
             break;
 
-        task* task = pool->task_queue.next();
+        Task* task = pool->task_queue.next();
 
         pool->active++;
 

@@ -5,7 +5,7 @@
 #include <cstdint>
 #include <Partition.h>
 
-class HistogramTask : public ThreadPool::task {
+class HistogramTask : public ThreadPool::Task {
 private:
     unsigned char *segment;
     uint64_t *histogram;

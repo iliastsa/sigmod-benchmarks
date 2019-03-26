@@ -6,9 +6,9 @@
 
 class ThreadPool {
 public:
-    class task {
+    class Task {
     public:
-        virtual ~task() = default;
+        virtual ~Task() = default;
 
         virtual void run() = 0;
     };
@@ -16,10 +16,10 @@ private:
     class task_queue {
     private:
         struct task_queue_node {
-            class task* task;
+            class Task* task;
             task_queue_node *next;
 
-            task_queue_node(class task* task) : task(task), next(nullptr) {}
+            task_queue_node(class Task* task) : task(task), next(nullptr) {}
         };
 
         task_queue_node *head;
@@ -44,8 +44,8 @@ private:
         void broadcast();
         void broadcast_queue_empty();
 
-        void insert(task* task);
-        task* next();
+        void insert(Task* task);
+        Task* next();
     } task_queue;
 
     pthread_t *threads;
@@ -60,7 +60,7 @@ public:
     ThreadPool(int n_workers);
     ~ThreadPool();
 
-    void add_task(task* task);
+    void add_task(Task* task);
     void wait_all();
 };
 

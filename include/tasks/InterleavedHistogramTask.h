@@ -6,7 +6,7 @@
 #include "FileReader.h"
 
 template <class T>
-class InterleavedHistogramTask : public ThreadPool::task {
+class InterleavedHistogramTask : public ThreadPool::Task {
 private:
     FileReader* reader;
     uint64_t *histogram;
