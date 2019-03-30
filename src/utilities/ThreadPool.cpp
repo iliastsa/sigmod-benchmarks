@@ -59,6 +59,10 @@ void ThreadPool::task_queue::wait() {
     pthread_cond_wait(&queue_available, &queue_rwlock);
 }
 
+void ThreadPool::task_queue::wait_empty() {
+    pthread_cond_wait(&queue_empty, &queue_rwlock);
+}
+
 void ThreadPool::task_queue::broadcast() {
     pthread_cond_broadcast(&queue_available);
 }
@@ -118,7 +122,7 @@ void* ThreadPool::thread_run(void *t_pool) {
         pool->active--;
 
         if (pool->active == 0 && pool->task_queue.n_tasks == 0)
-            pool->task_queue.broadcast();
+            pool->task_queue.broadcast_queue_empty();
 
         pool->task_queue.unlock();
     }
@@ -138,7 +142,7 @@ void ThreadPool::wait_all() {
     task_queue.lock();
 
     while (task_queue.n_tasks != 0 || active != 0)
-        task_queue.wait();
+        task_queue.wait_empty();
 
     task_queue.unlock();
 }

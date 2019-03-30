@@ -18,6 +18,7 @@ ColumnStoreBWBenchmark::ColumnStoreBWBenchmark(const char *filename, const char 
 {
     cout << "Writing to: " << out_filename << endl;
     f_init(filename, &fd, &file_size);
+    cout << "File size: " << file_size << endl;
 }
 
 

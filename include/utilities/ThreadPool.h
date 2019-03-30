@@ -41,6 +41,7 @@ private:
         void lock();
         void unlock();
         void wait();
+        void wait_empty();
         void broadcast();
         void broadcast_queue_empty();
 

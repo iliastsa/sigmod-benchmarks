@@ -12,7 +12,7 @@ protected:
     bool owner;
 
 public:
-    FileWriter(int fd, bool owner = false) : fd(fd) {}
+    FileWriter(int fd, bool owner = false) : fd(fd), owner(owner) {}
 
     virtual ~FileWriter() {
         if (owner)
