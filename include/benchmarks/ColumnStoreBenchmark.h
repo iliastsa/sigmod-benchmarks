@@ -15,10 +15,11 @@ private:
     const char *filename;
     uint64_t file_size;
 
-    Tuple *tuples;
+    const char *out_filename;
+    int out_fd;
 
 public:
-    ColumnStoreBenchmark(const char* filename, int n_threads);
+    ColumnStoreBenchmark(const char *filename, const char *out_filename, int n_threads);
 
     virtual ~ColumnStoreBenchmark();
 

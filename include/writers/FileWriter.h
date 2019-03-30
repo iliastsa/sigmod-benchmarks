@@ -3,29 +3,23 @@
 
 
 #include <cstdint>
+#include <unistd.h>
+#include <Constants.h>
 
 class FileWriter {
 protected:
     int fd;
+    bool owner;
 
-    uint64_t from;
-    uint64_t to;
-    uint64_t chunk_size;
-
-    unsigned char *buffer;
 public:
-    FileWriter(int fd, uint64_t from, uint64_t to, unsigned char *buffer, uint64_t chunk_size) :
-            fd(fd), from(from), to(to), buffer(buffer)
-    {
-        if (chunk_size == 0)
-            this->chunk_size = to - from;
-        else
-            this->chunk_size = chunk_size;
+    FileWriter(int fd, bool owner = false) : fd(fd) {}
+
+    virtual ~FileWriter() {
+        if (owner)
+            close(fd);
     }
 
-    virtual ~FileWriter() = default;
-
-    virtual void flush() = 0;
+    virtual void write(unsigned char *buf, uint64_t size) = 0;
 };
 
 

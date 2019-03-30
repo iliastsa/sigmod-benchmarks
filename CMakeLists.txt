@@ -4,9 +4,10 @@ project(SigmodBenchmarks)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_FLAGS "-O3")
 
-include_directories(include/partition include/utilities include/readers include/writers include/tasks include/benchmarks include/utilities include/structures)
+include_directories(include/partition include/readers include/writers include/tasks include/benchmarks include/utilities include/structures)
 
-add_executable(SigmodBenchmarks src/main.cpp include/utilities/ThreadPool.h include/tasks/InterleavedHistogramTask.h include/readers/FileReader.h src/readers/MMapReader.cpp include/readers/MMapReader.h include/utilities/Timer.h src/readers/ReadReader.cpp include/readers/ReadReader.h src/partition/Partition.cpp include/partition/Partition.h include/benchmarks/Benchmark.h src/benchmarks/ParallelReadHistoBenchmark.cpp include/benchmarks/ParallelReadHistoBenchmark.h include/utilities/Utils.h src/utilities/Utils.cpp src/utilities/ThreadPool.cpp include/utilities/ThreadPool.h src/readers/ASyncReader.cpp include/readers/ASyncReader.h include/benchmarks/SequentialReadHistoBenchmark.h src/benchmarks/SequentialReadHistoBenchmark.cpp include/utilities/Constants.h src/writers/FileWriter.cpp include/writers/FileWriter.h include/tasks/HistogramTask.h src/benchmarks/SingleMMapHistoBenchmark.cpp include/benchmarks/SingleMMapHistoBenchmark.h include/tasks/WriteTask.h src/benchmarks/WriteBenchmark.cpp include/benchmarks/WriteBenchmark.h include/tasks/ColumnStoreTask.h include/tasks/ColumnStoreTask.h include/tasks/ColumnStoreTask.h include/structures/Tuple.h src/benchmarks/ColumnStoreBenchmark.cpp include/benchmarks/ColumnStoreBenchmark.h include/utilities/borrowedsort.h)
+add_executable( SigmodBenchmarks include/tasks/RandomReadSortedTask.h include/writers/BufferringWriter.h
+                src/main.cpp src/readers/MMapReader.cpp src/readers/ReadReader.cpp src/partition/Partition.cpp src/benchmarks/ParallelReadHistoBenchmark.cpp src/utilities/Utils.cpp src/utilities/ThreadPool.cpp src/readers/ASyncReader.cpp src/benchmarks/SequentialReadHistoBenchmark.cpp src/writers/FileWriter.cpp src/benchmarks/SingleMMapHistoBenchmark.cpp src/benchmarks/WriteBenchmark.cpp src/benchmarks/ColumnStoreBenchmark.cpp src/writers/BufferringWriter.cpp include/benchmarks/ColumnStoreBWBenchmark.cpp include/benchmarks/ColumnStoreBWBenchmark.h)
 
 target_compile_definitions(SigmodBenchmarks PRIVATE DEBUG)
 target_link_libraries(SigmodBenchmarks -lpthread -lrt)

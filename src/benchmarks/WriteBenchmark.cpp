@@ -27,12 +27,17 @@ void WriteBenchmark::run() {
 
     int fd = open(filename, O_CREAT | O_WRONLY, 0600);
 
+    fallocate(fd, FALLOC_FL_ZERO_RANGE, 0, filesize);
+
+    close(fd);
+
     if (filesize % n_threads == 0) {
         uint64_t segment_size = filesize/n_threads;
 
         for (int i = 0; i < n_threads; ++i) {
-            uint64_t from = i * segment_size;
+            fd = open(filename, O_WRONLY, 0600);
 
+            uint64_t from = i * segment_size;
 
             thread_pool.add_task(new WriteTask(fd, buffer + from, from, segment_size));
         }
