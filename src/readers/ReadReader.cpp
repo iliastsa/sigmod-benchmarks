@@ -8,14 +8,22 @@
 
 #include "ReadReader.h"
 
-ReadReader::ReadReader(int fd, uint64_t from, uint64_t to, uint64_t chunk_size) :
-    FileReader(fd, from, to, chunk_size)
+ReadReader::ReadReader(int fd, uint64_t from, uint64_t to, uint64_t chunk_size)
+        : FileReader(fd, from, to, chunk_size), shared_buffer(false)
 {
     buffer = static_cast<unsigned char*>(malloc(this->chunk_size * sizeof(unsigned char)));
 }
 
+ReadReader::ReadReader(int fd, uint64_t from, uint64_t to, uint64_t chunk_size, unsigned char* buffer)
+        : FileReader(fd, from, to, chunk_size), shared_buffer(true)
+{
+    this->buffer = buffer;
+}
+
+
 ReadReader::~ReadReader() {
-    free(buffer);
+    if (!shared_buffer)
+        free(buffer);
     close(fd);
 }
 
@@ -31,5 +39,9 @@ unsigned char* ReadReader::next(uint64_t *sz) {
     *sz = read_amt;
     from += bytes_read;
 
-    return read_amt == 0 ? nullptr : buffer;
+    unsigned char* ret_buf = buffer;
+    if(shared_buffer)
+        buffer += bytes_read;
+
+    return read_amt == 0 ? nullptr : ret_buf;
 }

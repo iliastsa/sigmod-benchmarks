@@ -1,26 +1,29 @@
 
+
+
+#include <FileInMemColumnStoreBenchmark.h>
+#include <Utils.h>
 #include <ThreadPool.h>
-#include <cstdint>
+
+#include <iostream>
 #include <Constants.h>
-#include <Tuple.h>
 #include <Timer.h>
 #include <fcntl.h>
-#include <borrowedsort.h>
-#include <Utils.h>
 #include <ColumnStoreTask.h>
+#include <borrowedsort.h>
 #include <RandomReadSortedTask.h>
-#include "ColumnStoreBWBenchmark.h"
+#include <ReadSortedRAMTask.h>
 
 using namespace std;
 
-ColumnStoreBWBenchmark::ColumnStoreBWBenchmark(const char *filename, const char *out_filename, int n_threads)
-            : filename(filename), out_filename(out_filename), n_threads(n_threads)
+FileInMemColumnStoreBenchmark::FileInMemColumnStoreBenchmark(const char* filename, const char* out_filename, int n_threads)
+        : filename(filename), out_filename(out_filename), n_threads(n_threads)
 {
     f_init(filename, &fd, &file_size);
 }
 
 
-void ColumnStoreBWBenchmark::run() {
+void FileInMemColumnStoreBenchmark::run() {
     ThreadPool thread_pool(n_threads);
 
     cout << "File size: " << file_size << endl;
@@ -28,6 +31,8 @@ void ColumnStoreBWBenchmark::run() {
     const uint64_t num_tuples = file_size / Constants::TUPLE_SIZE;
 
     tuples = static_cast<Tuple*>(malloc(num_tuples * sizeof(Tuple)));
+
+    auto buffer = static_cast<unsigned char*> (malloc(file_size * sizeof(unsigned char)));
 
     Timer timer;
 
@@ -40,12 +45,22 @@ void ColumnStoreBWBenchmark::run() {
         uint64_t from = i * segment_size;
         uint64_t to   = (i + 1) * segment_size;
 
-        thread_pool.add_task(new ColumnStoreTask(tuples, fd, from, to, Constants::CHUNK_SIZE));
+        thread_pool.add_task(new ColumnStoreTask(tuples, fd, from, to, Constants::CHUNK_SIZE, buffer + from));
     }
 
-    cout << "All jobs in queue, waiting..." << endl;
 
+
+
+
+    cout << "All jobs in queue, waiting..." << endl;
     thread_pool.wait_all();
+
+    //    for(uint64_t i = 0; i < num_tuples; i++) {
+//        if (memcmp(&(tuples[i].key), buffer + i*Constants::TUPLE_SIZE, Constants::KEY_SIZE) != 0)
+//            exit(8);
+//    }
+
+
 
     timer.stop();
 
@@ -61,12 +76,11 @@ void ColumnStoreBWBenchmark::run() {
     fallocate(out_fd, 0, 0, file_size);
 
     for (int i = 0; i < n_threads; ++i) {
-        int fd = open(filename, O_RDONLY);
         uint64_t from = i * segment_size;
         uint64_t thread_tuples = num_tuples / n_threads;
         uint64_t thread_offset = i * thread_tuples;
 
-        thread_pool.add_task(new RandomReadSortedTask(fd, out_fd, from, tuples + thread_offset, thread_tuples));
+        thread_pool.add_task(new ReadSortedRAMTask(buffer, out_fd, from, tuples + thread_offset, thread_tuples));
     }
 
     thread_pool.wait_all();
@@ -80,5 +94,3 @@ void ColumnStoreBWBenchmark::run() {
     cout << "Out file size: " << file_size << endl;
 
 }
-
-

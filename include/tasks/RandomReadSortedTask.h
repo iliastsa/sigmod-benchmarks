@@ -24,7 +24,7 @@ public:
         : fd(fd), out_fd(outFd), from(from), tuples(tuples), num_tuples(num_tuples) {}
 
     void run() override {
-        BufferringWriter writer(out_fd, from, 4096);
+        BufferringWriter writer(out_fd, from, Constants::WRITE_BUFFER_SIZE);
 
         unsigned char buf[Constants::TUPLE_SIZE];
 

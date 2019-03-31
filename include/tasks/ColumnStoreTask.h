@@ -26,6 +26,9 @@ public:
     ColumnStoreTask(Tuple* tuples, int fd, uint64_t from, uint64_t to, uint64_t chunk_size)
             : reader(fd, from, to, chunk_size), tuples(tuples), offset(from/Constants::TUPLE_SIZE) {}
 
+    ColumnStoreTask(Tuple* tuples, int fd, uint64_t from, uint64_t to, uint64_t chunk_size, unsigned char* buffer)
+            : reader(fd, from, to, chunk_size, buffer), tuples(tuples), offset(from/Constants::TUPLE_SIZE) {}
+
     void run() final {
         uint64_t sz;
         unsigned char* mem;

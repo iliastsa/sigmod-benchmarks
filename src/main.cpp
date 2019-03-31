@@ -15,24 +15,25 @@
 #include <ColumnStoreBWBenchmark.h>
 #include <borrowedsort.h>
 #include <InMemoryBenchmark.h>
+#include <FileInMemColumnStoreBenchmark.h>
 
 using namespace std;
 
 int main(int argc, char** argv) {
 
-    Timer t;
-    t.run();
-    auto in_mem_bench = new InMemoryBenchmark(argv[1], argv[2], Constants::N_THREADS);
-    in_mem_bench->run();
-    t.stop();
-    cout << "Total time: " << std::fixed << t.elapsedMilliseconds() << " ms" << endl;
-    delete in_mem_bench;
-
+    Benchmark* bench = new FileInMemColumnStoreBenchmark(argv[1], argv[2], Constants::N_THREADS);
+    bench->run();
 
 
 
 //    Benchmark* column_store_bench = new ColumnStoreBWBenchmark(argv[1], argv[2], Constants::N_THREADS);
 //    column_store_bench->run();
+
+
+//    auto in_mem_bench = new InMemoryBenchmark(argv[1], argv[2], Constants::N_THREADS);
+//    in_mem_bench->run();
+
+
 
 
 //    uint64_t size = 100000000;
