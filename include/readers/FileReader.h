@@ -1,7 +1,7 @@
 #ifndef SIGMODBENCHMARKS_FILEREADER_H
 #define SIGMODBENCHMARKS_FILEREADER_H
 
-#include <stdint-gcc.h>
+#include <cstdint>
 
 class FileReader {
 protected:

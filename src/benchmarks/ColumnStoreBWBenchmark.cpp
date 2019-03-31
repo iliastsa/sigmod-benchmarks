@@ -16,19 +16,18 @@ using namespace std;
 ColumnStoreBWBenchmark::ColumnStoreBWBenchmark(const char *filename, const char *out_filename, int n_threads)
             : filename(filename), out_filename(out_filename), n_threads(n_threads)
 {
-    cout << "Writing to: " << out_filename << endl;
     f_init(filename, &fd, &file_size);
-    cout << "File size: " << file_size << endl;
 }
 
 
 void ColumnStoreBWBenchmark::run() {
     ThreadPool thread_pool(n_threads);
 
+    cout << "File size: " << file_size << endl;
+
     const uint64_t num_tuples = file_size / Constants::TUPLE_SIZE;
 
     tuples = static_cast<Tuple*>(malloc(num_tuples * sizeof(Tuple)));
-
 
     Timer timer;
 
@@ -59,7 +58,7 @@ void ColumnStoreBWBenchmark::run() {
 
     timer.run();
     int out_fd = open(out_filename, O_CREAT | O_WRONLY, 0666);
-    fallocate(out_fd, FALLOC_FL_ZERO_RANGE, 0, file_size);
+    fallocate(out_fd, 0, 0, file_size);
 
     for (int i = 0; i < n_threads; ++i) {
         int fd = open(filename, O_RDONLY);
@@ -69,14 +68,18 @@ void ColumnStoreBWBenchmark::run() {
 
         thread_pool.add_task(new RandomReadSortedTask(fd, out_fd, from, tuples + thread_offset, thread_tuples));
     }
+
     thread_pool.wait_all();
+
     close(out_fd);
+
     timer.stop();
     cout << "Write time: " << std::fixed << timer.elapsedMilliseconds() << " ms" << endl;
 
-
-    f_init(out_filename,&fd,&file_size);
+    f_init(out_filename, &fd, &file_size);
     cout << "Out file size: " << file_size << endl;
+
+    free(tuples);
 }
 
 

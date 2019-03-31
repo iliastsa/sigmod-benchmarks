@@ -2,7 +2,7 @@
 #define SIGMODBENCHMARKS_WRITEBENCHMARK_H
 
 
-#include <stdint-gcc.h>
+#include <cstdint>
 #include "Benchmark.h"
 
 class WriteBenchmark : public Benchmark {

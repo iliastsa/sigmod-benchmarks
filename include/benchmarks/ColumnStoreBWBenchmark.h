@@ -8,20 +8,20 @@
 class ColumnStoreBWBenchmark : public Benchmark {
 private:
     int fd;
-    int n_threads;
 
     const char *filename;
+    const char *out_filename;
+
     uint64_t file_size;
 
-    const char *out_filename;
-    int out_fd;
+    int n_threads;
 
     Tuple *tuples;
 
 public:
     ColumnStoreBWBenchmark(const char *filename, const char *out_filename, int n_threads);
 
-    virtual ~ColumnStoreBWBenchmark() = default;
+    virtual ~ColumnStoreBWBenchmark() override = default;
 
     void run() override;
 };

@@ -7,10 +7,11 @@
 
 class HistogramTask : public ThreadPool::Task {
 private:
-    unsigned char *segment;
     uint64_t *histogram;
 
+    unsigned char *segment;
     uint64_t segment_size;
+
 public:
     HistogramTask(uint64_t* histogram, unsigned char *segment, uint64_t segment_size) :
             histogram(histogram), segment(segment), segment_size(segment_size) {}

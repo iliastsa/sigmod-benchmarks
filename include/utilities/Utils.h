@@ -11,8 +11,8 @@
     #define P_DEBUG(...)
 #endif
 
-#define ERR(msg) fprintf(stderr, "%s\n", msg)
-#define P_ERR(msg,err) fprintf(stderr, "%s : %s\n", msg, strerror(err))
+#define ERR(msg) fprintf(stdout, "%s\n", msg)
+#define P_ERR(msg,err) fprintf(stdout, "%s : %s\n", msg, strerror(err))
 
 void f_init(const char *file_name, int *fd, uint64_t *file_size);
 

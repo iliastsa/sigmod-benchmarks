@@ -19,7 +19,7 @@
 using namespace std;
 
 SingleMMapHistoBenchmark::SingleMMapHistoBenchmark(char* filename, int n_threads) :
-        n_threads(n_threads), filename(filename)
+        n_threads(n_threads)
 {
     f_init(filename, &fd, &file_size);
 }
@@ -68,7 +68,7 @@ void SingleMMapHistoBenchmark::run() {
 
     // Verify
     uint64_t sum = 0;
-    for (uint64_t i = 0; i < n_threads * Constants::N_PARTITIONS; ++i)
+    for (uint64_t i = 0; i < static_cast<uint64_t>(n_threads) * Constants::N_PARTITIONS; ++i)
         sum += global_histogram[i];
 
     cout << "Tuples read: " << sum  << endl;

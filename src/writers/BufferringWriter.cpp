@@ -2,6 +2,8 @@
 #include <cstdlib>
 #include <cstring>
 #include <unistd.h>
+#include <Utils.h>
+#include <cerrno>
 #include "BufferringWriter.h"
 
 BufferringWriter::BufferringWriter(int fd, uint64_t offset, uint64_t capacity)
@@ -16,10 +18,17 @@ BufferringWriter::~BufferringWriter() {
 }
 
 void BufferringWriter::flush() {
-    ssize_t bytes_written = 0;
+    uint64_t bytes_written = 0;
+
     while(bytes_written < current_size) {
-       bytes_written += pwrite(fd, buffer + bytes_written, current_size - bytes_written, offset + bytes_written);
+        ssize_t bytes = pwrite(fd, buffer + bytes_written, current_size - bytes_written, offset + bytes_written);
+
+        if (bytes < 0)
+            P_ERR("Bad write!", errno);
+
+       bytes_written += bytes;
     }
+
     offset += current_size;
     current_size = 0;
 }

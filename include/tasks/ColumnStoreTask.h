@@ -13,7 +13,7 @@ class ColumnStoreTask : public ThreadPool::Task {
 private:
     ReadReader reader;
     Tuple* tuples;
-    uint32_t offset;
+    uint64_t offset;
 
     void toColumnStore(const unsigned char* mem, uint64_t sz) {
         for (uint64_t i = 0; i < sz; i += Constants::TUPLE_SIZE) {

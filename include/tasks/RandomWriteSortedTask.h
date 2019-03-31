@@ -9,18 +9,16 @@
 
 class RandomWriteSortedTask : public ThreadPool::Task {
 private:
-    int fd;
     int out_fd;
 
     uint64_t *tuples_by_row;
-
-    ReadReader reader;
     uint64_t from;
 
+    ReadReader reader;
 
 public:
     RandomWriteSortedTask(int fd, int out_fd, uint64_t from, uint64_t to, uint64_t chunk_size, uint64_t *tuples_by_row)
-            : fd(fd), out_fd(out_fd), tuples_by_row(tuples_by_row), from(from), reader(fd, from, to, chunk_size) {}
+            : out_fd(out_fd), tuples_by_row(tuples_by_row), from(from), reader(fd, from, to, chunk_size) {}
 
     void run() override {
         uint64_t sz;

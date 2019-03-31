@@ -18,8 +18,6 @@ ColumnStoreBenchmark::ColumnStoreBenchmark(const char *filename, const char *out
         : filename(filename), out_filename(out_filename), n_threads(n_threads)
 {
     f_init(filename, &fd, &file_size);
-    //TODO DELETE THIS
-    file_size /= 100;
 }
 
 ColumnStoreBenchmark::~ColumnStoreBenchmark() {

@@ -6,7 +6,7 @@ ThreadPool::task_queue::task_queue() : head(nullptr), tail(nullptr), n_tasks(0) 
     pthread_mutex_init(&queue_rwlock, nullptr);
 
     pthread_cond_init(&queue_empty, nullptr);
-};
+}
 
 ThreadPool::Task* ThreadPool::task_queue::next() {
     if (n_tasks == 0)

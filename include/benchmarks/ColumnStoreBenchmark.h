@@ -10,13 +10,13 @@
 class ColumnStoreBenchmark : public Benchmark {
 private:
     int fd;
-    int n_threads;
 
     const char *filename;
+    const char *out_filename;
+
     uint64_t file_size;
 
-    const char *out_filename;
-    int out_fd;
+    int n_threads;
 
 public:
     ColumnStoreBenchmark(const char *filename, const char *out_filename, int n_threads);

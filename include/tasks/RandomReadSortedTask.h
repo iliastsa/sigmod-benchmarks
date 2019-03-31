@@ -29,8 +29,8 @@ public:
         unsigned char buf[Constants::TUPLE_SIZE];
 
         for (uint64_t i = 0; i < num_tuples; i++) {
-            uint64_t offset = tuples[i].rowID * Constants::TUPLE_SIZE;
-            ssize_t bytes_read = 0;
+            uint64_t offset = static_cast<uint64_t>(tuples[i].rowID) * Constants::TUPLE_SIZE;
+            uint64_t bytes_read = 0;
 
             while (bytes_read < Constants::TUPLE_SIZE) {
                bytes_read += pread(fd, buf + bytes_read, Constants::TUPLE_SIZE - bytes_read, offset + bytes_read);

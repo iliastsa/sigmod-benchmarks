@@ -9,10 +9,11 @@ class WriteTask : public ThreadPool::Task {
 private:
     int fd;
 
+    unsigned char *buffer;
+
     uint64_t offset;
     uint64_t size;
 
-    unsigned char *buffer;
 public:
     WriteTask(int fd, unsigned char *buffer, uint64_t offset, uint64_t size) :
         fd(fd), buffer(buffer), offset(offset), size(size) {}
