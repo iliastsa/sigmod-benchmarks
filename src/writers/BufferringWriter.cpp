@@ -20,14 +20,8 @@ BufferringWriter::~BufferringWriter() {
 void BufferringWriter::flush() {
     uint64_t bytes_written = 0;
 
-    while(bytes_written < current_size) {
-        ssize_t bytes = pwrite(fd, buffer + bytes_written, current_size - bytes_written, offset + bytes_written);
-
-        if (bytes < 0)
-            P_ERR("Bad write!", errno);
-
-       bytes_written += bytes;
-    }
+    while(bytes_written < current_size)
+        bytes_written += pwrite(fd, buffer + bytes_written, current_size - bytes_written, offset + bytes_written);
 
     offset += current_size;
     current_size = 0;

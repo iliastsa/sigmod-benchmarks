@@ -14,6 +14,7 @@
 #include <climits>
 #include <ColumnStoreBWBenchmark.h>
 #include <borrowedsort.h>
+#include <InMemoryBenchmark.h>
 
 using namespace std;
 
@@ -21,11 +22,18 @@ int main(int argc, char** argv) {
 
     Timer t;
     t.run();
-    Benchmark* column_store_bench = new ColumnStoreBWBenchmark(argv[1], argv[2], Constants::N_THREADS);
-    column_store_bench->run();
+    auto in_mem_bench = new InMemoryBenchmark(argv[1], argv[2], Constants::N_THREADS);
+    in_mem_bench->run();
     t.stop();
     cout << "Total time: " << std::fixed << t.elapsedMilliseconds() << " ms" << endl;
-    delete column_store_bench;
+    delete in_mem_bench;
+
+
+
+
+//    Benchmark* column_store_bench = new ColumnStoreBWBenchmark(argv[1], argv[2], Constants::N_THREADS);
+//    column_store_bench->run();
+
 
 //    uint64_t size = 100000000;
 //    int32_t *nums = static_cast<int32_t*>(malloc(size * sizeof(int32_t)));
