@@ -1,3 +1,8 @@
+#include <unistd.h>
+#include <cerrno>
+#include <Constants.h>
+#include <Utils.h>
+#include <cstring>
 #include "ThreadPool.h"
 
 ThreadPool::task_queue::task_queue() : head(nullptr), tail(nullptr), n_tasks(0) {
@@ -81,21 +86,44 @@ ThreadPool::task_queue::~task_queue(){
 }
 
 ThreadPool::ThreadPool(int n_threads) : running(1), n_threads(n_threads), active(0) {
-    threads = new pthread_t[n_threads];
+    threads = new Thread[n_threads];
 
     // TODO: Error checking
 
     // Initialize threads
-    for (int i = 0; i < n_threads; ++i)
-        pthread_create(threads + i, nullptr, thread_run, this);
+    for (int i = 0; i < n_threads; ++i) {
+        threads[i].id = i;
+        threads[i].thread_pool = this;
+
+        pthread_create(&threads[i].thread, nullptr, thread_run, threads + i);
+    }
 }
 
 void ThreadPool::add_task(Task* task) {
     task_queue.insert(task);
 }
 
-void* ThreadPool::thread_run(void *t_pool) {
-    ThreadPool* pool = (ThreadPool*) t_pool;
+
+void ThreadPool::pin_current_thread(int core_id) {
+    cpu_set_t cpuset;
+
+    CPU_ZERO(&cpuset);
+    CPU_SET(core_id, &cpuset);
+
+    pthread_t current_thread = pthread_self();
+
+    if (int err = pthread_setaffinity_np(current_thread, sizeof(cpu_set_t), &cpuset))
+        P_ERR("Set affinity", err);
+}
+
+
+void* ThreadPool::thread_run(void *thread_arg) {
+    Thread *thread = (Thread*) thread_arg;
+
+    int id = thread->id;
+    ThreadPool* pool = thread->thread_pool;
+
+    pin_current_thread(id % Constants::N_CORES);
 
     for (;;) {
         // Acquire lock since the get function requires it
@@ -157,7 +185,7 @@ ThreadPool::~ThreadPool() {
     task_queue.unlock();
 
     for (int i = 0; i < n_threads; ++i)
-        pthread_join(threads[i], nullptr);
+        pthread_join(threads[i].thread, nullptr);
 
     delete[] threads;
 }

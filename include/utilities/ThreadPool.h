@@ -13,6 +13,13 @@ public:
         virtual void run() = 0;
     };
 private:
+    struct Thread {
+        int id;
+        pthread_t thread;
+
+        ThreadPool *thread_pool;
+    };
+
     class task_queue {
     private:
         struct task_queue_node {
@@ -49,13 +56,14 @@ private:
         Task* next();
     } task_queue;
 
-    pthread_t *threads;
+    Thread *threads;
 
     volatile int running;
     volatile int n_threads;
     volatile int active;
 
     static void* thread_run(void *t_pool);
+    static void  pin_current_thread(int core_id);
 
 public:
     ThreadPool(int n_workers);
