@@ -9,6 +9,7 @@
 #include <Utils.h>
 #include <ColumnStoreTask.h>
 #include <RandomReadSortedTask.h>
+#include <boost/sort/block_indirect_sort/block_indirect_sort.hpp>
 #include "ColumnStoreBWBenchmark.h"
 
 using namespace std;
@@ -52,7 +53,8 @@ void ColumnStoreBWBenchmark::run() {
     cout << "Column store time: " << std::fixed << timer.elapsedMilliseconds() << " ms" << endl;
 
     timer.run();
-    parasort(num_tuples, tuples, Constants::N_THREADS);
+//    parasort(num_tuples, tuples, Constants::N_THREADS);
+    boost::sort::block_indirect_sort(tuples, tuples + num_tuples, Constants::N_THREADS);
     timer.stop();
     cout << "Sort time: " << std::fixed << timer.elapsedMilliseconds() << " ms" << endl;
 

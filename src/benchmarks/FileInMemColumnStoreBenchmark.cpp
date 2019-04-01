@@ -1,10 +1,7 @@
-
-
-
 #include <FileInMemColumnStoreBenchmark.h>
 #include <Utils.h>
 #include <ThreadPool.h>
-
+#include <boost/sort/block_indirect_sort/block_indirect_sort.hpp>
 #include <iostream>
 #include <Constants.h>
 #include <Timer.h>
@@ -48,26 +45,16 @@ void FileInMemColumnStoreBenchmark::run() {
         thread_pool.add_task(new ColumnStoreTask(tuples, fd, from, to, Constants::CHUNK_SIZE, buffer + from));
     }
 
-
-
-
-
     cout << "All jobs in queue, waiting..." << endl;
     thread_pool.wait_all();
-
-    //    for(uint64_t i = 0; i < num_tuples; i++) {
-//        if (memcmp(&(tuples[i].key), buffer + i*Constants::TUPLE_SIZE, Constants::KEY_SIZE) != 0)
-//            exit(8);
-//    }
-
-
 
     timer.stop();
 
     cout << "Column store time: " << std::fixed << timer.elapsedMilliseconds() << " ms" << endl;
 
     timer.run();
-    parasort(num_tuples, tuples, Constants::N_THREADS);
+//    parasort(num_tuples, tuples, Constants::N_THREADS);
+    boost::sort::block_indirect_sort(tuples, tuples + num_tuples, Constants::N_THREADS);
     timer.stop();
     cout << "Sort time: " << std::fixed << timer.elapsedMilliseconds() << " ms" << endl;
 

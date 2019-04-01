@@ -10,8 +10,8 @@
 #include "InMemoryBenchmark.h"
 
 
-InMemoryBenchmark::InMemoryBenchmark(const char* filename, const char* out_filename, int n_threads)\
-    : filename(filename), out_filename(out_filename), n_threads(n_threads)
+InMemoryBenchmark::InMemoryBenchmark(const char* filename, const char* out_filename)
+    : out_filename(out_filename)
 {
     f_init(filename, &fd, &file_size);
 }
@@ -33,11 +33,6 @@ void InMemoryBenchmark::run() {
     std::cout << "Mixed sort IO time : " << timer.elapsedMilliseconds() << " ms" << std::endl;
 
     timer.run();
-
-    for(uint64_t i = 0; i < num_tuples - 1; i++) {
-        if (tuples[i+1] < tuples[i])
-            exit(7);
-    }
 
     int out_fd = open(out_filename, O_CREAT | O_WRONLY, 0666);
 
