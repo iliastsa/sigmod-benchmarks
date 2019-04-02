@@ -5,6 +5,7 @@
 #include <cstring>
 #include <cerrno>
 #include <iostream>
+#include <sys/mman.h>
 
 #include "ReadReader.h"
 
@@ -32,6 +33,7 @@ unsigned char* ReadReader::next(uint64_t *sz) {
 
     uint64_t read_amt = to - from < chunk_size ? to - from : chunk_size;
 
+    posix_fadvise(fd, from, read_amt, POSIX_FADV_SEQUENTIAL);
 
     while (bytes_read < read_amt)
         bytes_read += pread(fd, buffer + bytes_read, read_amt - bytes_read, from + bytes_read);

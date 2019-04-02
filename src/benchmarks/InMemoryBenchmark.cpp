@@ -34,7 +34,7 @@ void InMemoryBenchmark::run() {
 
     timer.run();
 
-    int out_fd = open(out_filename, O_CREAT | O_WRONLY, 0666);
+    int out_fd = open(out_filename, O_CREAT | O_WRONLY, 0600);
 
 
     uint64_t bytes_written = 0;

@@ -6,6 +6,7 @@
 #include <cstdint>
 #include <BufferringWriter.h>
 #include <Tuple.h>
+#include <sys/mman.h>
 
 class ReadSortedRAMTask : public ThreadPool::Task {
 private:

@@ -59,8 +59,8 @@ void FileInMemColumnStoreBenchmark::run() {
     cout << "Sort time: " << std::fixed << timer.elapsedMilliseconds() << " ms" << endl;
 
     timer.run();
-    int out_fd = open(out_filename, O_CREAT | O_WRONLY, 0666);
-    fallocate(out_fd, 0, 0, file_size);
+    int out_fd = open(out_filename, O_CREAT | O_WRONLY, 0600);
+    fallocate(out_fd, FALLOC_FL_ZERO_RANGE, 0, file_size);
 
     for (int i = 0; i < n_threads; ++i) {
         uint64_t from = i * segment_size;
@@ -76,8 +76,4 @@ void FileInMemColumnStoreBenchmark::run() {
 
     timer.stop();
     cout << "Write time: " << std::fixed << timer.elapsedMilliseconds() << " ms" << endl;
-
-    f_init(out_filename, &fd, &file_size);
-    cout << "Out file size: " << file_size << endl;
-
 }

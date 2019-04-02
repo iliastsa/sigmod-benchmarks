@@ -7,6 +7,7 @@
 #include <Tuple.h>
 #include <Constants.h>
 #include <cstring>
+#include <ASyncReader.h>
 
 
 class ColumnStoreTask : public ThreadPool::Task {

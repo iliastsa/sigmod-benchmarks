@@ -4,17 +4,17 @@
 #include <cstdint>
 
 namespace Constants {
-    const int N_CORES = 20;
-    const int N_THREADS = 40;
-    const uint16_t PAGE_SIZE = 4096;
-    const uint16_t PAGE_SHIFT_AMT = 12;
+    extern const int N_CORES;
+    extern const int N_THREADS;
+    extern const uint16_t PAGE_SIZE;
+    extern const uint16_t PAGE_SHIFT_AMT;
 
-    const uint16_t N_PARTITIONS = 1024;
+    extern const uint16_t N_PARTITIONS;
 
-    const uint64_t KEY_SIZE   = 10;
-    const uint64_t TUPLE_SIZE = 100;
-    const uint16_t CHUNK_SIZE = 4000; // If CHUNK_SIZE is 0, the whole thread segment will be read
-    static uint32_t WRITE_BUFFER_SIZE = 1024 * 256;
+    extern const uint64_t KEY_SIZE;
+    extern const uint64_t TUPLE_SIZE;
+    extern const uint16_t CHUNK_SIZE;
+    extern       uint32_t WRITE_BUFFER_SIZE;
 }
 
 #endif

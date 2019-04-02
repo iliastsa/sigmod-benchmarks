@@ -4,6 +4,7 @@
 #include <unistd.h>
 #include <Utils.h>
 #include <cerrno>
+#include <fcntl.h>
 #include "BufferringWriter.h"
 
 BufferringWriter::BufferringWriter(int fd, uint64_t offset, uint64_t capacity)
@@ -19,6 +20,8 @@ BufferringWriter::~BufferringWriter() {
 
 void BufferringWriter::flush() {
     uint64_t bytes_written = 0;
+
+    posix_fadvise(fd, offset, current_size, POSIX_FADV_SEQUENTIAL);
 
     while(bytes_written < current_size)
         bytes_written += pwrite(fd, buffer + bytes_written, current_size - bytes_written, offset + bytes_written);

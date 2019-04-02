@@ -59,11 +59,10 @@ void ColumnStoreBWBenchmark::run() {
     cout << "Sort time: " << std::fixed << timer.elapsedMilliseconds() << " ms" << endl;
 
     timer.run();
-    int out_fd = open(out_filename, O_CREAT | O_WRONLY, 0666);
+    int out_fd = open(out_filename, O_CREAT | O_WRONLY, 0600);
     fallocate(out_fd, 0, 0, file_size);
 
     for (int i = 0; i < n_threads; ++i) {
-        int fd = open(filename, O_RDONLY);
         uint64_t from = i * segment_size;
         uint64_t thread_tuples = num_tuples / n_threads;
         uint64_t thread_offset = i * thread_tuples;

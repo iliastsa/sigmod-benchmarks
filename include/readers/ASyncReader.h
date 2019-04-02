@@ -2,32 +2,33 @@
 #define SIGMODBENCHMARKS_ASYNCREADER_H
 
 #include <cstdlib>
-#include <aio.h>
+#include <linux/aio_abi.h>
+
+#include <cerrno>
+#include <cstring>
 #include "FileReader.h"
+
+#include "Utils.h"
+#include "AsyncUtils.h"
 
 class ASyncReader : public FileReader {
 private:
     unsigned char *async_buffer;
-    struct aiocb   async_handle;
+
+    aio_context_t ctx;
+
+    struct iocb     async_handle;
+    struct iocb     *async_h_arr[1];
+
+    struct io_event async_events[1];
+
+    bool shared_buffer;
 
     unsigned char* blocking_next(uint64_t *sz, unsigned char* buffer);
 
 public:
-    ASyncReader(int fd, uint64_t from, uint64_t to, uint64_t chunk_size) :
-            FileReader(fd, from, to, chunk_size)
-    {
-        // Setup async handle
-        async_handle.aio_fildes   = fd;
-        async_handle.aio_offset   = from + chunk_size; // First read is sync
-        async_handle.aio_buf      = async_buffer;
-        async_handle.aio_nbytes   = chunk_size;
-        async_handle.aio_reqprio  = 0;
-        async_handle.aio_sigevent.sigev_notify = SIGEV_NONE;
-
-        // Allocate buffers
-        buffer = static_cast<unsigned char*>(malloc(chunk_size * sizeof(unsigned char)));
-        async_buffer = nullptr;
-    }
+    ASyncReader(int fd, uint64_t from, uint64_t to, uint64_t chunk_size, unsigned char *buffer);
+    ASyncReader(int fd, uint64_t from, uint64_t to, uint64_t chunk_size);
 
     virtual unsigned char* next(uint64_t *sz);
 
