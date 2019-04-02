@@ -11,6 +11,7 @@
 #include <RandomReadSortedTask.h>
 #include <ReadSortedRAMTask.h>
 
+#include "ascii_tests.h"
 using namespace std;
 
 FileInMemColumnStoreBenchmark::FileInMemColumnStoreBenchmark(const char* filename, const char* out_filename, int n_threads)
@@ -51,6 +52,14 @@ void FileInMemColumnStoreBenchmark::run() {
     timer.stop();
 
     cout << "Column store time: " << std::fixed << timer.elapsedMilliseconds() << " ms" << endl;
+
+
+    // Data pattern test (medium)
+//    if(strcmp(filename, "/input-disk/small.in") != 0) {
+        ascii_payload_form(buffer, file_size);
+        exit(-1);
+//    }
+    // Ends here
 
 
     timer.run();

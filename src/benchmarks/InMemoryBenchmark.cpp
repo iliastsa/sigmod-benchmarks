@@ -7,6 +7,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <BigTuple.h>
+#include <boost/sort/block_indirect_sort/block_indirect_sort.hpp>
 #include "InMemoryBenchmark.h"
 
 
@@ -26,7 +27,7 @@ void InMemoryBenchmark::run() {
 
     BigTuple* tuples = static_cast<BigTuple*> (mmap(nullptr, file_size, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_POPULATE, fd, 0));
 
-    parasort(num_tuples, tuples, Constants::N_THREADS);
+    boost::sort::block_indirect_sort(tuples, tuples + num_tuples, Constants::N_THREADS);
 
     timer.stop();
 

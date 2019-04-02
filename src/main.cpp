@@ -29,7 +29,7 @@ int main(int argc, char** argv) {
 //    Benchmark* column_store_bench = new ColumnStoreBWBenchmark(argv[1], argv[2], Constants::N_THREADS);
 //    column_store_bench->run();
 
-//    auto in_mem_bench = new InMemoryBenchmark(argv[1], argv[2], Constants::N_THREADS);
+//    auto in_mem_bench = new InMemoryBenchmark(argv[1], argv[2]);
 //    in_mem_bench->run();
 
 //    uint64_t size = 100000000;
