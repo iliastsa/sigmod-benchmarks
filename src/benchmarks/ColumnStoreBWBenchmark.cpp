@@ -1,16 +1,19 @@
+#include <cstdint>
+#include <fcntl.h>
+
+#include <boost/sort/block_indirect_sort/block_indirect_sort.hpp>
 
 #include <ThreadPool.h>
-#include <cstdint>
 #include <Constants.h>
 #include <Tuple.h>
 #include <Timer.h>
-#include <fcntl.h>
-#include <borrowedsort.h>
 #include <Utils.h>
-#include <ColumnStoreTask.h>
+
+#include <borrowedsort.h>
+
+#include <ColumnStoreBWBenchmark.h>
 #include <RandomReadSortedTask.h>
-#include <boost/sort/block_indirect_sort/block_indirect_sort.hpp>
-#include "ColumnStoreBWBenchmark.h"
+#include <ColumnStoreTask.h>
 
 using namespace std;
 

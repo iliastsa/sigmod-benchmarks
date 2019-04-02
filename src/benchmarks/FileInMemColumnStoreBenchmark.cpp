@@ -52,6 +52,7 @@ void FileInMemColumnStoreBenchmark::run() {
 
     cout << "Column store time: " << std::fixed << timer.elapsedMilliseconds() << " ms" << endl;
 
+
     timer.run();
 //    parasort(num_tuples, tuples, Constants::N_THREADS);
     boost::sort::block_indirect_sort(tuples, tuples + num_tuples, Constants::N_THREADS);

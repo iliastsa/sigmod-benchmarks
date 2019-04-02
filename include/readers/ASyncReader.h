@@ -2,7 +2,7 @@
 #define SIGMODBENCHMARKS_ASYNCREADER_H
 
 #include <cstdlib>
-#include <linux/aio_abi.h>
+
 
 #include <cerrno>
 #include <cstring>
@@ -10,6 +10,8 @@
 
 #include "Utils.h"
 #include "AsyncUtils.h"
+
+#include <linux/aio_abi.h>
 
 class ASyncReader : public FileReader {
 private:
