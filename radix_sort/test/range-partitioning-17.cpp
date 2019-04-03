@@ -91,11 +91,15 @@ void range_17_way
     std::size_t (&indices)[N]
 )
 {
+    // Currently, the keys must be aligned on a 16-byte boundary, otherwise
+    // some of them are being skipped
     constexpr std::size_t skipped = N % (sizeof(key_wide_t) / sizeof(key_t));
 
     if constexpr (skipped)
         std::fprintf(stderr, "Warning: Skipping %lu/%lu keys]\n\n", skipped, N);
 
+    // The 16 delimeters are loaded into an array, whose entries
+    // are able to store 4 x 32-bit delimeters each
     const del_wide_t * dels_128_ptr = reinterpret_cast<const del_wide_t *>(dels_32);
 
     del_wide_t dels_128[DELS_128_SIZE];
@@ -113,8 +117,10 @@ void range_17_way
 
     for (const key_wide_t * beg = keys_128, * end = &keys_128[KEYS_128_SIZE]; beg < end; ++beg)
     {
+        // We load 4 keys at a time
         key_128[3UL] = _mm_load_si128(beg);
 
+        // Each key is being broadcasted to all the lanes of a 128-bit register
         key_128[0UL] = _mm_shuffle_epi32(key_128[3UL], _MM_SHUFFLE(0, 0, 0, 0));
         key_128[1UL] = _mm_shuffle_epi32(key_128[3UL], _MM_SHUFFLE(1, 1, 1, 1));
         key_128[2UL] = _mm_shuffle_epi32(key_128[3UL], _MM_SHUFFLE(2, 2, 2, 2));
@@ -122,15 +128,29 @@ void range_17_way
 
         for (std::size_t i = 0UL; i < sizeof(key_128) / sizeof(key_128[0UL]); i++)
         {
+            // Compare the current key with every delimeter, 4 delimeters at a time
+            // _mm_cmpgt_epi32: true -> 0xFFFFFFFF, false -> 0x00000000 
             result[0UL] = _mm_cmpgt_epi32(dels_128[0UL], key_128[i]);
             result[1UL] = _mm_cmpgt_epi32(dels_128[1UL], key_128[i]);
             result[2UL] = _mm_cmpgt_epi32(dels_128[2UL], key_128[i]);
             result[3UL] = _mm_cmpgt_epi32(dels_128[3UL], key_128[i]);
 
+            // We pack the 32-bit integers stored in result[0/2] and result[1/3]
+            // in 16-bit integers using signed saturation
             result[0UL] = _mm_packs_epi32(result[0UL], result[1UL]);
             result[1UL] = _mm_packs_epi32(result[2UL], result[3UL]);
+
+            // We pack the 16-bit integers stored in result[0] and result[1]
+            // in 8-bit integers using signed saturation
             result[0UL] = _mm_packs_epi16(result[0UL], result[1UL]);
             
+            // _mm_movemask_epi8 creates a mask from the most-significant-bit
+            // of every 8-bit element in our 8-bit packed comparison results
+            // We use _bit_scan_forward to find the least-significant-set-bit
+            // which indicates the index of the delimeter that is
+            // greater than the current key. 
+            // We logically or our packed comparison results with 0x10000,
+            // so that, if no such delimeter exists, 16 will be returned
             indices[at++] = _bit_scan_forward(_mm_movemask_epi8(result[0UL]) | 0x10000);
         }
     }
