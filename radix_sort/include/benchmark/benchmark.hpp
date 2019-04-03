@@ -6,7 +6,7 @@
 #include <chrono>           // std::chrono
 #include <tuple>            // std::tuple
 
-namespace utility
+namespace massiva
 {
     namespace detail
     {
@@ -26,7 +26,7 @@ namespace utility
         typename ...Args,
         typename = detail::enable_if_t<detail::is_void<Task, Args...>::value>
     >
-    double benchmark(Task&& task, Args&&... args)
+    inline double benchmark(Task&& task, Args&&... args)
     {
         auto tbeg = std::chrono::high_resolution_clock::now();
 
@@ -48,7 +48,7 @@ namespace utility
         typename ...Args,
         typename = detail::enable_if_t<!detail::is_void<Task, Args...>::value>
     >
-    auto benchmark(Task&& task, Args&&... args) -> std::tuple<double, detail::result_of_t<Task, Args...>>
+    inline auto benchmark(Task&& task, Args&&... args) -> std::tuple<double, detail::result_of_t<Task, Args...>>
     {
         auto tbeg = std::chrono::high_resolution_clock::now();
 
