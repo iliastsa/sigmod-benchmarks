@@ -6,6 +6,7 @@
 #include <cassert>
 #include <cstdlib>
 #include <string>
+#include <unordered_set>
 
 bool ascii_key_range(unsigned char* mem, uint64_t file_size) {
 
@@ -29,11 +30,7 @@ bool ascii_payload_form(unsigned char* mem, uint64_t file_size) {
 
     for (uint64_t i = 0; i < file_size; i += Constants::TUPLE_SIZE) {
         uint64_t payload_idx = 10;
-        payload_idx = 10;
-        payload_idx = 10;payload_idx = 10;payload_idx = 10;payload_idx = 10;payload_idx = 10;
 
-
-        std::cout << Constants::KEY_SIZE << " " << payload_idx << std::endl;
         /* 2 spaces after key */
         assert(mem[i + payload_idx] == ' ');
         payload_idx++;
@@ -76,14 +73,20 @@ bool ascii_payload_form(unsigned char* mem, uint64_t file_size) {
             }
             assert(base == mem[i + payload_idx]);
         }
-
+        assert(mem[i + payload_idx++] == '\r');
         assert(mem[i + payload_idx] == '\n');
     }
 
     return true;
 }
 
-void small_payload_unique(unsigned char* mem) {
-
+void small_payload_unique(unsigned char *mem, uint64_t file_size) {
+    std::unordered_set<std::string> set;
+    for (uint64_t i = 0; i < file_size; i += Constants::TUPLE_SIZE) {
+        uint64_t payload_idx = Constants::KEY_SIZE;
+        std::string s(&mem[i + payload_idx], &mem[i + payload_idx + 90]);
+        set.insert(s);
+    }
+    std::cout << "Distinct payloads in small dataset: " << set.size() << std::endl;
 }
 #endif
