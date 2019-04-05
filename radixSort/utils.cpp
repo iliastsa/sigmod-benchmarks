@@ -144,3 +144,63 @@ void radixsort2(Tuple *tuples, uint32_t num_tuples){
     // }
     // free(outputArray);
 }
+
+void RadixQuicksort(Tuple *tuples, int32_t lo, int32_t hi, int32_t byte){
+
+    if (lo >= hi)
+        return;
+
+    int32_t low = lo;
+    int32_t high = hi;
+    int32_t char_index = tuples[low].key[byte];
+    int32_t index = low + 1;
+    int32_t  test_char;
+
+    while(index <= high){
+
+        test_char = tuples[index].key[byte];
+
+        if(test_char < char_index){
+
+            unsigned char tmp[11];
+            // unsigned char tmp_payload[90];
+
+            memcpy(tmp, tuples[low].key, Constants::KEY_SIZE);
+            // memcpy(tmp_payload, tuples[low].payload, Constants::PAYLOAD);
+
+            memcpy(tuples[low].key, tuples[index].key, Constants::KEY_SIZE);
+            // memcpy(tuples[low].payload, tuples[index].payload, Constants::PAYLOAD);
+
+            memcpy(tuples[index].key, tmp, Constants::KEY_SIZE);
+            // memcpy(tuples[index].payload, tmp_payload, Constants::PAYLOAD);
+            low++;
+            index++;
+
+        }
+        else if(test_char > char_index){
+
+            unsigned char tmp[11];
+            // unsigned char tmp_payload[90];
+            memcpy(tmp, tuples[high].key, Constants::KEY_SIZE);
+            // memcpy(tmp_payload, tuples[high].payload, Constants::PAYLOAD);
+
+            memcpy(tuples[high].key, tuples[index].key, Constants::KEY_SIZE);
+            // memcpy(tuples[high].payload, tuples[index].payload, Constants::PAYLOAD);
+
+            memcpy(tuples[index].key, tmp, Constants::KEY_SIZE);
+            // memcpy(tuples[index].payload, tmp_payload, Constants::PAYLOAD);
+
+            high--;
+
+        }
+        else
+            index++;
+    }
+
+    RadixQuicksort(tuples, lo, low -1, byte);
+    if(byte < Constants::KEY_SIZE)
+        RadixQuicksort(tuples, low, high, byte + 1);
+
+    RadixQuicksort(tuples, high + 1, hi, byte);
+
+}

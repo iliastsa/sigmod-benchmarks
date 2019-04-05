@@ -27,5 +27,6 @@ struct Tuple {
 void readFile(uint32_t num_tuples, Tuple *tuples,  uint32_t fd, uint32_t file_size) ;
 void radixsort(Tuple *tuples, uint32_t num_tuples);
 void radixsort2(Tuple *tuples, uint32_t num_tuples);
+void RadixQuicksort(Tuple *tuples, int32_t lo, int32_t hi, int32_t byte);
 
 #endif
