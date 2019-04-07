@@ -4,99 +4,80 @@
 #include <x86intrin.h>
 #include <cstdio>
 #include <cstdlib>
-#include <stdexcept>
-#include <benchmark/benchmark.hpp>
 
-#if ! defined (__RNJESUS__)
-    #define RANDOM_SEED  (0U)
-#else
-    #include <ctime>
-    #define RANDOM_SEED  (static_cast<unsigned>(std::time(nullptr)))
-#endif
+#include <macro.hpp>
+#include <types.hpp>
+#include <utility/benchmark.hpp>
 
-using key_t      = int32_t;
-using key_wide_t = __m128i; 
+#define DELS_32_SIZE (16UL)
 
-#define KEYS_32_SIZE  (16UL)
-#define KEYS_32_MAX   (+500)
-#define KEYS_32_MIN   (-500)
-
-#define KEYS_128_SIZE ((KEYS_32_SIZE * sizeof(key_t)) / sizeof(key_wide_t))
-
-using del_t      = int32_t;
-using del_wide_t = __m128i;
-
-#define DELS_32_SIZE  (16UL)
-
-#define DELS_128_SIZE ((DELS_32_SIZE * sizeof(del_t)) / sizeof(del_wide_t))
-
-template <std::size_t N>
+template <unarrow_t N>
 void range_17_way
 (
     const del_t (&dels_32)[DELS_32_SIZE],
     const key_t (&keys_32)[N],
-    std::size_t (&indices)[N]
+    unarrow_t (&indices)[N]
 );
 
 int main()
 {
     std::srand(RANDOM_SEED);
 
-    key_t keys_32[KEYS_32_SIZE];
+    key_t keys_32[KEYS_32_SIZE] = { 0 };
 
-    for (std::size_t i = 0UL; i < KEYS_32_SIZE; i++)
+    for (unarrow_t i = 0UL; i < KEYS_32_SIZE; i++)
         keys_32[i] = std::rand() % (KEYS_32_MAX - KEYS_32_MIN + 1) + KEYS_32_MIN;
 
-    const del_t dels_32[DELS_32_SIZE] = {
+    const del_t dels_32[] = {
         -400, -350, -300, -250, -200, -150, -100, -50,
         +50, +100, +150, +200, +250, +300, +350, +400
     };
 
-    std::size_t indices[KEYS_32_SIZE];
+    unarrow_t indices[KEYS_32_SIZE] = { 0UL };
 
-    double ms = utility::benchmark(range_17_way<KEYS_32_SIZE>, dels_32, keys_32, indices);
+    double ms = massiva::benchmark(range_17_way<KEYS_32_SIZE>, dels_32, keys_32, indices);
 
-    for (std::size_t i = 0UL; i < KEYS_32_SIZE; i++)
+    for (unarrow_t i = 0UL; i < KEYS_32_SIZE; i++)
     {
         if (indices[i] > DELS_32_SIZE - 1UL)
         {
             if (keys_32[i] < dels_32[DELS_32_SIZE - 1UL])
-                std::fprintf(stderr, "{ key-position: %2lu, delimeter-index: %2lu }\t%+4d >= %+4d\n", i, indices[i], keys_32[i], dels_32[DELS_32_SIZE - 1UL]);
+                std::fprintf(stderr, "{ key-position: %2u, delimeter-index: %2u }\t%+4d >= %+4d\n", i, indices[i], keys_32[i], dels_32[DELS_32_SIZE - 1UL]);
         }
         else if (indices[i] == 0UL)
         {
             if (keys_32[i] > dels_32[0UL])
-                std::fprintf(stderr, "{ key-position: %2lu, delimeter-index: %2lu }\t%+4d <= %+4d\n", i, indices[i], keys_32[i], dels_32[0UL]);
+                std::fprintf(stderr, "{ key-position: %2u, delimeter-index: %2u }\t%+4d <= %+4d\n", i, indices[i], keys_32[i], dels_32[0UL]);
         }
         else
         {
-            const key_t lower = dels_32[indices[i] - 1UL];
-            const key_t upper = dels_32[indices[i]];
+            const del_t lower = dels_32[indices[i] - 1UL];
+            const del_t upper = dels_32[indices[i]];
 
             if (lower > keys_32[i] || keys_32[i] > upper)
-                std::fprintf(stderr, "{ key-position: %2lu, delimeter-index: %2lu }\t%+4d <= %+4d <= %+4d\n", i, indices[i], lower, keys_32[i], upper);
+                std::fprintf(stderr, "{ key-position: %2u, delimeter-index: %2u }\t%+4d <= %+4d <= %+4d\n", i, indices[i], lower, keys_32[i], upper);
         }
     }
 
-    std::fprintf(stdout, "\nRange partitioned %lu keys in %.6lf milliseconds\n", KEYS_32_SIZE, ms);
+    std::printf("\nRange partitioned %lu keys in %.6lf milliseconds\n", KEYS_32_SIZE, ms);
 
     return 0;
 }
 
-template <std::size_t N>
+template <unarrow_t N>
 void range_17_way
 (
     const del_t (&dels_32)[DELS_32_SIZE],
     const key_t (&keys_32)[N],
-    std::size_t (&indices)[N]
+    unarrow_t (&indices)[N]
 )
 {
-    // Currently, the keys must be aligned on a 16-byte boundary, otherwise
-    // some of them are being skipped
-    constexpr std::size_t skipped = N % (sizeof(key_wide_t) / sizeof(key_t));
-
-    if constexpr (skipped)
-        std::fprintf(stderr, "Warning: Skipping %lu/%lu keys]\n\n", skipped, N);
+    // (TODO)
+    static_assert
+    (
+        N % (sizeof(key_wide_t) / sizeof(char)) == 0UL,
+        "The keys must be aligned on a 16-byte boundary"
+    );
 
     // The 16 delimeters are loaded into an array, whose entries
     // are able to store 4 x 32-bit delimeters each
@@ -109,11 +90,11 @@ void range_17_way
     dels_128[2UL] = _mm_load_si128(dels_128_ptr++);
     dels_128[3UL] = _mm_load_si128(dels_128_ptr++);
 
-    std::size_t at = 0UL;
+    unarrow_t at = 0UL;
 
     const key_wide_t * keys_128 = reinterpret_cast<const key_wide_t *>(keys_32);
 
-    key_wide_t key_128[4UL], result[4UL];
+    key_wide_t key_128[4UL]; wide_t result[4UL];
 
     for (const key_wide_t * beg = keys_128, * end = &keys_128[KEYS_128_SIZE]; beg < end; ++beg)
     {
@@ -126,7 +107,7 @@ void range_17_way
         key_128[2UL] = _mm_shuffle_epi32(key_128[3UL], _MM_SHUFFLE(2, 2, 2, 2));
         key_128[3UL] = _mm_shuffle_epi32(key_128[3UL], _MM_SHUFFLE(3, 3, 3, 3));
 
-        for (std::size_t i = 0UL; i < sizeof(key_128) / sizeof(key_128[0UL]); i++)
+        for (unarrow_t i = 0UL; i < sizeof(key_128) / sizeof(key_128[0UL]); i++)
         {
             // Compare the current key with every delimeter, 4 delimeters at a time
             // _mm_cmpgt_epi32: true -> 0xFFFFFFFF, false -> 0x00000000 
