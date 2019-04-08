@@ -15,14 +15,24 @@
 using namespace std;
 
 struct Tuple {
-    unsigned char *key;
-    unsigned char *payload;
+    char key[10];
+    char payload[90];
     uint32_t rowID;
 
     // bool operator<(const Tuple &rhs) const {
     //     return memcmp(key,rhs.key,10) < 0;
     // }
 };
+
+inline void swap(unsigned char *x, unsigned char* y, uint32_t rowIDx, uint32_t rowIDy){
+    unsigned char swap_temp[Constants::KEY_SIZE];
+    uint32_t tmp = rowIDx;
+    rowIDx = rowIDy;
+    rowIDy = tmp;
+    memcpy(swap_temp, y, Constants::KEY_SIZE);
+    memcpy(y, x, Constants::KEY_SIZE);
+    memcpy(x, swap_temp, Constants::KEY_SIZE);
+
 
 void readFile(uint32_t num_tuples, Tuple *tuples,  uint32_t fd, uint32_t file_size) ;
 void radixsort(Tuple *tuples, uint32_t num_tuples);
