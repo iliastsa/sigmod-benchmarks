@@ -14,6 +14,7 @@
 #include <ColumnStoreBWBenchmark.h>
 #include <RandomReadSortedTask.h>
 #include <ColumnStoreTask.h>
+#include <unordered_set>
 
 using namespace std;
 
@@ -61,6 +62,33 @@ void ColumnStoreBWBenchmark::run() {
     timer.stop();
     cout << "Sort time: " << std::fixed << timer.elapsedMilliseconds() << " ms" << endl;
 
+
+//    Tuple& cur = tuples[0];
+//    uint64_t counter = 1;
+//    uint64_t frequent_keys = 0;
+//    uint64_t limit = 50;
+//    uint64_t max_occurences = 1;
+//    for (uint64_t i = 1; i < num_tuples; i++){
+//
+//        if (memcmp(cur.key, tuples[i].key, Constants::KEY_SIZE) == 0){
+//            counter++;
+//        }
+//        else{
+//            max_occurences = counter > max_occurences ? counter : max_occurences;
+//            counter = 1;
+//            cur = tuples[i];
+//        }
+//
+//        if (counter > limit){
+//            frequent_keys++;
+//            while(memcmp(cur.key, tuples[i++].key, Constants::KEY_SIZE) == 0) counter++;
+//            max_occurences = counter > max_occurences ? counter : max_occurences;
+//            cur = tuples[i];
+//            counter = 1;
+//        }
+//    }
+//    cout << "Keys more than " << limit << " are " << frequent_keys << endl;
+//    cout << "Max occurrence is " << max_occurences << endl;
     timer.run();
     int out_fd = open(out_filename, O_CREAT | O_WRONLY, 0600);
     fallocate(out_fd, 0, 0, file_size);

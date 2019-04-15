@@ -8,7 +8,7 @@
 #include <sys/mman.h>
 #include <iostream>
 #include <SingleMMapHistoBenchmark.h>
-#include <WriteBenchmark.h>
+#include <IOBenchmark.h>
 #include <ColumnStoreBenchmark.h>
 #include <Timer.h>
 #include <climits>
@@ -20,11 +20,32 @@
 using namespace std;
 
 int main(int argc, char** argv) {
-    if (strcmp(argv[2], "/output-disk/small.out"))
+    if (!strcmp(argv[2], "/output-disk/small.out")) {
+        Constants::dataset = Constants::Dataset::SMALL;
+    }
+    else if (!strcmp(argv[2], "/output-disk/medium.out")){
         Constants::WRITE_BUFFER_SIZE = 1024 * 1024;
+        Constants::dataset = Constants::Dataset::MEDIUM;
+    }
+    else {
+        Constants::WRITE_BUFFER_SIZE = 1024 * 1024;
+        Constants::CHUNK_SIZE = 1000 * 1000;
+        Constants::dataset = Constants::Dataset::LARGE;
+    }
 
+    RUN_WHEN(Constants::Dataset::SMALL,
     Benchmark* bench = new FileInMemColumnStoreBenchmark(argv[1], argv[2], Constants::N_THREADS);
-    bench->run();
+    bench->run();)
+
+
+    RUN_WHEN(Constants::Dataset::MEDIUM,
+            Benchmark* bench = new FileInMemColumnStoreBenchmark(argv[1], argv[2], Constants::N_THREADS);
+    bench->run();)
+
+    RUN_WHEN(Constants::Dataset::LARGE,
+             Benchmark* bench = new ColumnStoreBWBenchmark(argv[1], argv[2], Constants::N_THREADS);
+                     bench->run(); sleep(15);)
+
 
 //    Benchmark* column_store_bench = new ColumnStoreBWBenchmark(argv[1], argv[2], Constants::N_THREADS);
 //    column_store_bench->run();

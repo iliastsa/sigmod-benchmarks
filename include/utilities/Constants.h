@@ -13,8 +13,17 @@ namespace Constants {
 
     extern const uint64_t KEY_SIZE;
     extern const uint64_t TUPLE_SIZE;
-    extern const uint16_t CHUNK_SIZE;
+    extern       uint32_t CHUNK_SIZE;
     extern       uint32_t WRITE_BUFFER_SIZE;
+
+    enum Dataset {
+        UNDEFINED,
+        SMALL,
+        MEDIUM,
+        LARGE
+    };
+
+    extern Dataset dataset;
 }
 
 #endif
