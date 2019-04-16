@@ -3,8 +3,8 @@
 #include "Constants.h"
 
 namespace Constants {
-    const int N_CORES = 4;
-    const int N_THREADS = 1;
+    const int N_CORES = 20;
+    const int N_THREADS = 40;
     const uint16_t PAGE_SIZE = 4096;
     const uint16_t PAGE_SHIFT_AMT = 12;
 

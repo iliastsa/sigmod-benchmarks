@@ -1,9 +1,9 @@
 #include <Tuple.h>
 #include <Timer.h>
 #include <fcntl.h>
-#include <ColumnStoreTask.h>
 #include <iostream>
 #include <boost/sort/block_indirect_sort/block_indirect_sort.hpp>
+#include <ColumnStoreTask.h>
 #include <ReadSortedRAMTask.h>
 #include "MergeBenchmark.h"
 
@@ -29,7 +29,7 @@ int MergeBenchmark::single_run(const char *output_file, uint64_t start, Tuple *t
         uint64_t from = i * segment_size;
         uint64_t to   = (i + 1) * segment_size;
 
-        thread_pool.add_task(new ColumnStoreTask(tuples, fd, from + start, to + start, Constants::CHUNK_SIZE, 0, buffer + from));
+        thread_pool.add_task(new ColumnStoreTask(tuples, fd, from + start, to + start, 0, from/Constants::TUPLE_SIZE, buffer + from));
     }
 
     cout << "All jobs in queue, waiting..." << endl;
@@ -46,7 +46,7 @@ int MergeBenchmark::single_run(const char *output_file, uint64_t start, Tuple *t
     cout << "Sort time: " << std::fixed << timer.elapsedMilliseconds() << " ms" << endl;
 
     timer.run();
-    int out_fd = open(output_file, O_CREAT | O_RDWR | O_TRUNC, 0600);
+    int out_fd = open(output_file, O_CREAT | O_RDWR, 0600);
     fallocate(out_fd, FALLOC_FL_ZERO_RANGE, 0, chunk_size);
 
     for (int i = 0; i < n_threads; ++i) {
@@ -76,7 +76,7 @@ void MergeBenchmark::run() {
     for (uint64_t i = 0; i < n_chunks; ++i) {
         uint64_t from = i * chunk_size;
 
-        out_fds[i] = single_run(to_string(i).c_str(), from, tuples, chunk_size, buffer);
+        out_fds[i] = single_run((string(output_file) + to_string(i)).c_str(), from, tuples, chunk_size, buffer);
     }
 
     Timer timer;
