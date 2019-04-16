@@ -18,8 +18,9 @@ private:
 
     void toColumnStore(const unsigned char* mem, uint64_t sz) {
         for (uint64_t i = 0; i < sz; i += Constants::TUPLE_SIZE) {
-            memcpy(&(tuples[offset].key), &mem[i], Constants::KEY_SIZE);
-            tuples[offset].rowID = offset;
+            memcpy(tuples[offset].key, &mem[i], Constants::KEY_SIZE);
+
+            tuples[offset].rowID = static_cast<uint32_t>(offset);
             offset++;
         }
     }

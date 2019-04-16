@@ -26,9 +26,10 @@ public:
         while ((mem = reader.next(&sz)) != nullptr) {
             for (uint64_t i = 0; i < sz; i += Constants::TUPLE_SIZE) {
                 uint64_t offset = from + tuples_by_row[i / Constants::TUPLE_SIZE] * Constants::TUPLE_SIZE;
-                pwrite(out_fd, &mem[i], Constants::TUPLE_SIZE, offset);
-//                lseek(offset_fd, offset, 0);
-//                write(out_fd, &mem[i], Constants::TUPLE_SIZE);
+                ssize_t written_bytes = pwrite(out_fd, &mem[i], Constants::TUPLE_SIZE, offset);
+
+                if (written_bytes < 0)
+                    exit(EXIT_FAILURE);
             }
         }
     }

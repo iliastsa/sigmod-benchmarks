@@ -57,6 +57,25 @@ void ColumnStoreBWBenchmark::run() {
     cout << "Column store time: " << std::fixed << timer.elapsedMilliseconds() << " ms" << endl;
 
     timer.run();
+
+    for (int i = 0; i < n_threads; ++i) {
+        int fd = open(filename, O_RDONLY);
+        uint64_t from = i * segment_size;
+        uint64_t to   = (i + 1) * segment_size;
+
+        thread_pool.add_task(new ColumnStoreTask(tuples, fd, from, to, Constants::CHUNK_SIZE));
+    }
+
+    cout << "All jobs in queue, waiting..." << endl;
+
+    thread_pool.wait_all();
+
+    timer.stop();
+
+    cout << "Column store time (second read): " << std::fixed << timer.elapsedMilliseconds() << " ms" << endl;
+
+    exit(EXIT_FAILURE);
+    timer.run();
 //    parasort(num_tuples, tuples, Constants::N_THREADS);
     boost::sort::block_indirect_sort(tuples, tuples + num_tuples, Constants::N_THREADS);
     timer.stop();
