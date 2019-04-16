@@ -8,6 +8,11 @@
 
 class MergeBenchmark : public Benchmark {
 private:
+    struct ChunkInfo {
+        unsigned char *buffer;
+        uint64_t size;
+    };
+
     const char *input_file;
     const char *output_file;
 
