@@ -5,7 +5,9 @@
 #include <boost/sort/block_indirect_sort/block_indirect_sort.hpp>
 #include <ColumnStoreTask.h>
 #include <ReadSortedRAMTask.h>
+#include <aio.h>
 #include "MergeBenchmark.h"
+#include "AltAsyncReader.h"
 
 using namespace std;
 
@@ -84,10 +86,17 @@ void MergeBenchmark::run() {
     timer.run();
 
     // Merge
-    ReadReader **readers = static_cast<ReadReader**>(malloc(n_chunks * sizeof(ReadReader*)));
+    FileReader **readers = static_cast<FileReader**>(malloc(n_chunks * sizeof(FileReader*)));
+
+    struct aioinit init_async;
+
+    init_async.aio_num = 6;
+    init_async.aio_threads = Constants::N_THREADS;
+
+    aio_init(&init_async);
 
     for (uint64_t i = 0; i < n_chunks; ++i)
-        readers[i] = new ReadReader(out_fds[i], 0, chunk_size, Constants::CHUNK_SIZE);
+        readers[i] = new AltAsyncReader(out_fds[i], 0, chunk_size, 4000);
 
     int out_fd = open(output_file, O_CREAT | O_WRONLY | O_TRUNC, 0600);
     fallocate(out_fd, FALLOC_FL_ZERO_RANGE, 0, file_size);

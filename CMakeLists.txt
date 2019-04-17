@@ -34,7 +34,8 @@ add_executable(SigmodBenchmarks
                src/benchmarks/FileInMemColumnStoreBenchmark.cpp
                src/utilities/AsyncUtils.cpp
                src/utilities/Constants.cpp
-               src/benchmarks/MergeBenchmark.cpp)
+               src/benchmarks/MergeBenchmark.cpp
+               src/readers/AltAsyncReader.cpp)
 
 target_compile_definitions(SigmodBenchmarks PRIVATE DEBUG)
 target_link_libraries(SigmodBenchmarks -lpthread -lrt)
