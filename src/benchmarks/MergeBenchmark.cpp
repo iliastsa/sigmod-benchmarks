@@ -88,6 +88,48 @@ int MergeBenchmark::single_run(const uint16_t run, const char *output_file, uint
     return out_fd;
 }
 
+void MergeBenchmark::print_key(ChunkInfo *chunk_info) {
+    for (int j = 0; j < Constants::KEY_SIZE; ++j)
+        cout << (chunk_info->buffer + (chunk_info->size - Constants::TUPLE_SIZE))[j];
+}
+
+bool MergeBenchmark::check_flushable(ChunkInfo *chunk_info, int i) {
+    for (int j = 0; j < n_chunks; ++j) {
+        if (chunk_info[j].buffer == nullptr || j == i)
+            continue;
+
+        if (memcmp(chunk_info[j].buffer, chunk_info[i].buffer + (chunk_info[i].size - Constants::TUPLE_SIZE), Constants::KEY_SIZE) < 0)
+            return false;
+    }
+
+    cout << "Triggered" << endl;
+
+    return true;
+}
+
+int MergeBenchmark::find_flushable(MergeBenchmark::ChunkInfo* chunk_info) {
+    for (int i = 0; i < n_chunks; ++i) {
+        if (chunk_info[i].buffer == nullptr)
+            continue;
+
+        bool flag = true;
+
+        for (int j = 0; j < n_chunks; ++j) {
+            if (chunk_info[j].buffer == nullptr)
+                continue;
+
+            if (memcmp(chunk_info[j].buffer, chunk_info[i].buffer + (chunk_info[i].size - Constants::TUPLE_SIZE), Constants::KEY_SIZE) < 0)
+                flag = false;
+        }
+
+        if (flag) {
+            return i;
+        }
+    }
+
+    return -1;
+}
+
 void MergeBenchmark::run() {
     const uint64_t chunk_size = file_size / n_chunks;
     const uint64_t chunk_tuples = chunk_size / Constants::TUPLE_SIZE;
@@ -123,8 +165,9 @@ void MergeBenchmark::run() {
     ChunkInfo *chunk_info = static_cast<ChunkInfo*>(malloc(n_chunks * sizeof(MergeBenchmark::ChunkInfo)));
 
 
+    // Initialize chunk info
     for (uint64_t i = 0; i < n_chunks; ++i)
-        chunk_info[i].buffer  = readers[i]->next(&chunk_info[i].size);
+        chunk_info[i].buffer = readers[i]->next(&chunk_info[i].size);
 
     for (uint64_t i = 0; i < file_size; i += Constants::TUPLE_SIZE) {
         uint32_t min_tuple = 0;
@@ -145,12 +188,20 @@ void MergeBenchmark::run() {
                 min_tuple = j;
         }
 
-        writer.write(chunk_info[min_tuple].buffer, Constants::TUPLE_SIZE);
+        if (check_flushable(chunk_info, min_tuple)) {
+            i += chunk_info[min_tuple].size - Constants::TUPLE_SIZE;
+            writer.write(chunk_info[min_tuple].buffer, chunk_info[min_tuple].size);
+            chunk_info[min_tuple].buffer = readers[min_tuple]->next(&chunk_info[min_tuple].size);
+            continue;
+        }
+        else
+            writer.write(chunk_info[min_tuple].buffer, Constants::TUPLE_SIZE);
 
         chunk_info[min_tuple].size -= Constants::TUPLE_SIZE;
 
-        if (chunk_info[min_tuple].size == 0)
-            chunk_info[min_tuple].buffer  = readers[min_tuple]->next(&chunk_info[min_tuple].size);
+        if (chunk_info[min_tuple].size == 0) {
+            chunk_info[min_tuple].buffer = readers[min_tuple]->next(&chunk_info[min_tuple].size);
+        }
         else
             chunk_info[min_tuple].buffer += Constants::TUPLE_SIZE;
     }

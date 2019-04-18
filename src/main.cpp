@@ -23,11 +23,15 @@ using namespace std;
 int main(int argc, char** argv) {
     Benchmark* bench;
 
-//    Constants::WRITE_BUFFER_SIZE = 4 * 1024 * 1024;
-//    bench = new MergeBenchmark(argv[1], argv[2], get_file_size(argv[1]), 6, Constants::N_THREADS);
+#ifndef SUBMISSION
+
+    Constants::WRITE_BUFFER_SIZE = 6 * 1024 * 1024;
+    bench = new MergeBenchmark(argv[1], argv[2], get_file_size(argv[1]), 6, Constants::N_THREADS);
 
     // TODO: Pin threads to a single NUMA socket
     // TODO: Try parallel merge runs
+
+#else
 
     switch (Constants::dataset = determine_dataset(argv[1])) {
         case Constants::SMALL:
@@ -45,6 +49,8 @@ int main(int argc, char** argv) {
         default:
             exit(EXIT_FAILURE);
     }
+
+#endif
 
     bench->run();
 

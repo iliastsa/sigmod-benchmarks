@@ -26,7 +26,12 @@ private:
 
     int *out_fds;
 
-    int single_run(const uint16_t run, const char *output_file, uint64_t start,  Tuple *tuples, uint64_t chunk_size, unsigned char *buffer);
+    void print_key(ChunkInfo *chunk_info);
+    bool check_flushable(ChunkInfo *chunk_info, int i);
+    int find_flushable(ChunkInfo *chunk_info);
+
+    int single_run(uint16_t run, const char *output_file, uint64_t start,  Tuple *tuples, uint64_t chunk_size, unsigned char *buffer);
+
 public:
     MergeBenchmark(const char *input_file, const char *output_file, uint64_t file_size, uint64_t n_chunks, int n_threads);
 
