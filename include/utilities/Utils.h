@@ -21,6 +21,7 @@
 #define RUN_WHEN(DATASET, CODE) {if (Constants::dataset == DATASET) { CODE }}
 
 #define GB(N) ((N) * 1000 * 1000 * 1000ULL)
+#define MB(N) ((N) * 1000 * 1000ULL)
 
 Constants::Dataset determine_dataset(const char *file_name);
 

@@ -6,6 +6,11 @@
 namespace Constants {
     extern const int N_CORES;
     extern const int N_THREADS;
+    extern const uint32_t IO_THREADS;
+    extern const uint32_t MEM_THREADS;
+
+    extern const uint64_t MERGE_BUFFER_SIZE;
+
     extern const uint16_t PAGE_SIZE;
     extern const uint16_t PAGE_SHIFT_AMT;
 

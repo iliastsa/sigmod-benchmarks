@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.5)
 project(SigmodBenchmarks)
 
 set(CMAKE_CXX_STANDARD 11)
-set(CMAKE_CXX_FLAGS "-Ofast -funroll-loops -Wall")
+#set(CMAKE_CXX_FLAGS "-Ofast -funroll-loops -Wall")
 #set(CMAKE_CXX_FLAGS  "-fsanitize=address")
 
 include_directories(include/libs
@@ -34,7 +34,8 @@ add_executable(SigmodBenchmarks
                src/benchmarks/FileInMemColumnStoreBenchmark.cpp
                src/utilities/AsyncUtils.cpp
                src/utilities/Constants.cpp
-               src/benchmarks/MergeBenchmark.cpp)
+               src/benchmarks/MergeBenchmark.cpp
+               src/readers/HybridReadReader.cpp include/tasks/PrepMergeBufferTask.h)
 
 target_compile_definitions(SigmodBenchmarks PRIVATE DEBUG)
 target_link_libraries(SigmodBenchmarks -lpthread -lrt)

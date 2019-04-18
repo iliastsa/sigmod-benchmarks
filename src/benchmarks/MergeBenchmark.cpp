@@ -5,6 +5,8 @@
 #include <boost/sort/block_indirect_sort/block_indirect_sort.hpp>
 #include <ColumnStoreTask.h>
 #include <ReadSortedRAMTask.h>
+#include <PrepMergeBufferTask.h>
+#include <HybridReadReader.h>
 #include "MergeBenchmark.h"
 
 using namespace std;
@@ -13,9 +15,10 @@ MergeBenchmark::MergeBenchmark(const char* input_file, const char* output_file, 
     : input_file(input_file), output_file(output_file), file_size(file_size), n_chunks(n_chunks), n_threads(n_threads), thread_pool(n_threads)
 {
     out_fds = static_cast<int*>(malloc(n_chunks * sizeof(int)));
+    merge_buffer = static_cast<unsigned char*>(malloc(n_chunks * Constants::MERGE_BUFFER_SIZE));
 }
 
-int MergeBenchmark::single_run(const char *output_file, uint64_t start, Tuple *tuples, uint64_t chunk_size, unsigned char *buffer) {
+int MergeBenchmark::single_run(const uint16_t run, const char *output_file, uint64_t start, Tuple *tuples, uint64_t chunk_size, unsigned char *buffer) {
     const uint64_t num_tuples = chunk_size / Constants::TUPLE_SIZE;
 
     Timer timer;
@@ -24,6 +27,7 @@ int MergeBenchmark::single_run(const char *output_file, uint64_t start, Tuple *t
 
     uint64_t segment_size = chunk_size / n_threads;
 
+    // Column store
     for (int i = 0; i < n_threads; ++i) {
         int fd = open(input_file, O_RDONLY);
         uint64_t from = i * segment_size;
@@ -39,28 +43,47 @@ int MergeBenchmark::single_run(const char *output_file, uint64_t start, Tuple *t
 
     cout << "Column store time: " << std::fixed << timer.elapsedMilliseconds() << " ms" << endl;
 
-
+    // Sort column store
     timer.run();
     boost::sort::block_indirect_sort(tuples, tuples + num_tuples, Constants::N_THREADS);
     timer.stop();
     cout << "Sort time: " << std::fixed << timer.elapsedMilliseconds() << " ms" << endl;
 
-    timer.run();
-    int out_fd = open(output_file, O_CREAT | O_RDWR, 0600);
-    fallocate(out_fd, FALLOC_FL_ZERO_RANGE, 0, chunk_size);
 
-    for (int i = 0; i < n_threads; ++i) {
-        uint64_t from = i * segment_size;
-        uint64_t thread_tuples = num_tuples / n_threads;
-        uint64_t thread_offset = i * thread_tuples;
+    timer.run();
+
+    uint64_t buffer_residue_size = chunk_size - Constants::MERGE_BUFFER_SIZE;
+    uint64_t local_buffer_residue_size = buffer_residue_size / Constants::IO_THREADS;
+
+    int out_fd = open(output_file, O_CREAT | O_RDWR, 0600);
+    fallocate(out_fd, FALLOC_FL_ZERO_RANGE, 0, buffer_residue_size);
+
+
+    // Order and write buffer residue to temp file
+    for (int i = 0; i < Constants::IO_THREADS; ++i) {
+        uint64_t from = i * local_buffer_residue_size;
+        uint64_t thread_tuples = local_buffer_residue_size / Constants::TUPLE_SIZE;
+        uint64_t thread_offset = i * thread_tuples + Constants::MERGE_BUFFER_SIZE / Constants::TUPLE_SIZE;
 
         thread_pool.add_task(new ReadSortedRAMTask(buffer, out_fd, from, tuples + thread_offset, thread_tuples));
+    }
+
+    unsigned char *current_merge_buffer = merge_buffer + run * Constants::MERGE_BUFFER_SIZE;
+    const uint64_t local_merge_buffer_size = Constants::MERGE_BUFFER_SIZE / Constants::MEM_THREADS;
+
+    // Order and store buffer prefix in memory
+    for (int i = 0; i < Constants::MEM_THREADS; ++i) {
+        unsigned char *local_merge_buffer = current_merge_buffer + i * local_merge_buffer_size;
+        uint64_t thread_tuples = local_merge_buffer_size / Constants::TUPLE_SIZE;
+        uint64_t thread_offset = i * thread_tuples;
+
+        thread_pool.add_task(new PrepMergeBufferTask(local_merge_buffer, buffer, tuples + thread_offset, thread_tuples));
     }
 
     thread_pool.wait_all();
 
     timer.stop();
-    cout << "Write time: " << std::fixed << timer.elapsedMilliseconds() << " ms" << endl;
+    cout << "Prep + write time: " << std::fixed << timer.elapsedMilliseconds() << " ms" << endl;
 
     return out_fd;
 }
@@ -73,21 +96,24 @@ void MergeBenchmark::run() {
     auto buffer = static_cast<unsigned char*> (malloc(chunk_size * sizeof(unsigned char)));
 
     // Sort chunks
-    for (uint64_t i = 0; i < n_chunks; ++i) {
+    for (uint16_t i = 0; i < n_chunks; ++i) {
         uint64_t from = i * chunk_size;
 
-        out_fds[i] = single_run((string(output_file) + to_string(i)).c_str(), from, tuples, chunk_size, buffer);
+        out_fds[i] = single_run(i, (string(output_file) + to_string(i)).c_str(), from, tuples, chunk_size, buffer);
     }
+
+    free(tuples);
+    free(buffer);
 
     Timer timer;
 
     timer.run();
 
     // Merge
-    ReadReader **readers = static_cast<ReadReader**>(malloc(n_chunks * sizeof(ReadReader*)));
+    FileReader **readers = static_cast<FileReader**>(malloc(n_chunks * sizeof(FileReader*)));
 
     for (uint64_t i = 0; i < n_chunks; ++i)
-        readers[i] = new ReadReader(out_fds[i], 0, chunk_size, Constants::CHUNK_SIZE);
+        readers[i] = new HybridReadReader(out_fds[i], 0, chunk_size - Constants::MERGE_BUFFER_SIZE, Constants::MERGE_BUFFER_SIZE, merge_buffer + i * Constants::MERGE_BUFFER_SIZE);
 
     int out_fd = open(output_file, O_CREAT | O_WRONLY | O_TRUNC, 0600);
     fallocate(out_fd, FALLOC_FL_ZERO_RANGE, 0, file_size);
@@ -95,6 +121,7 @@ void MergeBenchmark::run() {
     BufferringWriter writer(out_fd, 0, Constants::WRITE_BUFFER_SIZE);
 
     ChunkInfo *chunk_info = static_cast<ChunkInfo*>(malloc(n_chunks * sizeof(MergeBenchmark::ChunkInfo)));
+
 
     for (uint64_t i = 0; i < n_chunks; ++i)
         chunk_info[i].buffer  = readers[i]->next(&chunk_info[i].size);
