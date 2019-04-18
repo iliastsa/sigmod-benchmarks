@@ -55,7 +55,7 @@ int MergeBenchmark::single_run(const uint16_t run, const char *output_file, uint
     uint64_t buffer_residue_size = chunk_size - Constants::MERGE_BUFFER_SIZE;
     uint64_t local_buffer_residue_size = buffer_residue_size / Constants::IO_THREADS;
 
-    int out_fd = open(output_file, O_CREAT | O_RDWR, 0600);
+    int out_fd = open(output_file, O_CREAT | O_RDWR | O_TRUNC, 0600);
     fallocate(out_fd, FALLOC_FL_ZERO_RANGE, 0, buffer_residue_size);
 
 

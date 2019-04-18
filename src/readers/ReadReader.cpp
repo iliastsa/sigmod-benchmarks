@@ -15,8 +15,8 @@ ReadReader::ReadReader(int fd, uint64_t from, uint64_t to, uint64_t chunk_size)
     buffer = static_cast<unsigned char*>(malloc(this->chunk_size * sizeof(unsigned char)));
 }
 
-ReadReader::ReadReader(int fd, uint64_t from, uint64_t to, uint64_t chunk_size, unsigned char* buffer)
-        : FileReader(fd, from, to, chunk_size), shared_buffer(true)
+ReadReader::ReadReader(int fd, uint64_t from, uint64_t to, uint64_t chunk_size, unsigned char* buffer, bool append_buffer)
+        : FileReader(fd, from, to, chunk_size), shared_buffer(true), append_buffer(append_buffer)
 {
     this->buffer = buffer;
 }
@@ -42,7 +42,7 @@ unsigned char* ReadReader::next(uint64_t *sz) {
     from += bytes_read;
 
     unsigned char* ret_buf = buffer;
-    if(shared_buffer)
+    if(shared_buffer && append_buffer)
         buffer += bytes_read;
 
     return read_amt == 0 ? nullptr : ret_buf;

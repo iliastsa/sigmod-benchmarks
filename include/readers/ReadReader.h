@@ -7,9 +7,11 @@
 class ReadReader : public FileReader {
 private:
     bool shared_buffer;
+    bool append_buffer;
+
 public:
     ReadReader(int fd, uint64_t from, uint64_t to, uint64_t chunk_size);
-    ReadReader(int fd, uint64_t from, uint64_t to, uint64_t chunk_size, unsigned char* buffer);
+    ReadReader(int fd, uint64_t from, uint64_t to, uint64_t chunk_size, unsigned char* buffer, bool append_buffer = true);
 
     virtual unsigned char* next(uint64_t *sz);
 
