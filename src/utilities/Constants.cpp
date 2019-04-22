@@ -7,9 +7,10 @@
 
 namespace Constants {
     const int N_CORES = 20;
+    const int N_SOCKETS = 2;
     const int N_THREADS = 40;
-    const uint32_t IO_THREADS = 20;
-    const uint32_t MEM_THREADS = 20;
+    const uint32_t IO_THREADS = 10;
+    const uint32_t MEM_THREADS = 10;
 
     extern const uint64_t MERGE_BUFFER_SIZE = GB(3);
 
@@ -30,6 +31,7 @@ namespace Constants {
 
 namespace Constants {
     const int N_CORES = 4;
+    const int N_SOCKETS = 1;
     const int N_THREADS = 4;
     const uint32_t IO_THREADS = 2;
     const uint32_t MEM_THREADS = 2;

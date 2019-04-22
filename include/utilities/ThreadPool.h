@@ -58,14 +58,18 @@ private:
 
     Thread *threads;
 
+    const bool pinned;
+    int socket;
+
     volatile int running;
     volatile int n_threads;
     volatile int active;
 
-    static void* thread_run(void *t_pool);
     static void  pin_current_thread(int core_id);
+    static void* thread_run(void *t_pool);
 
 public:
+    ThreadPool(int n_threads, int core);
     ThreadPool(int n_workers);
     ~ThreadPool();
 

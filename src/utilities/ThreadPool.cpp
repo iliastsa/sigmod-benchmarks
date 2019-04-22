@@ -85,7 +85,21 @@ ThreadPool::task_queue::~task_queue(){
     }
 }
 
-ThreadPool::ThreadPool(int n_threads) : running(1), n_threads(n_threads), active(0) {
+ThreadPool::ThreadPool(int n_threads, int socket) : pinned(true), socket(socket), running(1), n_threads(n_threads), active(0) {
+    threads = new Thread[n_threads];
+
+    // TODO: Error checking
+
+    // Initialize threads
+    for (int i = 0; i < n_threads; ++i) {
+        threads[i].id = i;
+        threads[i].thread_pool = this;
+
+        pthread_create(&threads[i].thread, nullptr, thread_run, threads + i);
+    }
+}
+
+ThreadPool::ThreadPool(int n_threads) : pinned(false), running(1), n_threads(n_threads), active(0) {
     threads = new Thread[n_threads];
 
     // TODO: Error checking
@@ -123,7 +137,14 @@ void* ThreadPool::thread_run(void *thread_arg) {
     int id = thread->id;
     ThreadPool* pool = thread->thread_pool;
 
-    pin_current_thread(id % Constants::N_CORES);
+    if (pool->pinned) {
+        const int cores_per_socket = Constants::N_CORES / Constants::N_SOCKETS;
+
+        const int core = id % (cores_per_socket) + pool->socket * cores_per_socket;
+        pin_current_thread(core);
+    }
+
+
 
     for (;;) {
         // Acquire lock since the get function requires it

@@ -12,7 +12,7 @@
 using namespace std;
 
 MergeBenchmark::MergeBenchmark(const char* input_file, const char* output_file, uint64_t file_size, uint64_t n_chunks, int n_threads)
-    : input_file(input_file), output_file(output_file), file_size(file_size), n_chunks(n_chunks), n_threads(n_threads), thread_pool(n_threads)
+    : input_file(input_file), output_file(output_file), file_size(file_size), n_chunks(n_chunks), n_threads(n_threads), thread_pool(n_threads, 0)
 {
     out_fds = static_cast<int*>(malloc(n_chunks * sizeof(int)));
     merge_buffer = static_cast<unsigned char*>(malloc(n_chunks * Constants::MERGE_BUFFER_SIZE));
@@ -60,7 +60,7 @@ int MergeBenchmark::single_run(const uint16_t run, const char *output_file, uint
 
 
     // Order and write buffer residue to temp file
-    for (int i = 0; i < Constants::IO_THREADS; ++i) {
+    for (uint32_t i = 0; i < Constants::IO_THREADS; ++i) {
         uint64_t from = i * local_buffer_residue_size;
         uint64_t thread_tuples = local_buffer_residue_size / Constants::TUPLE_SIZE;
         uint64_t thread_offset = i * thread_tuples + Constants::MERGE_BUFFER_SIZE / Constants::TUPLE_SIZE;
@@ -72,7 +72,7 @@ int MergeBenchmark::single_run(const uint16_t run, const char *output_file, uint
     const uint64_t local_merge_buffer_size = Constants::MERGE_BUFFER_SIZE / Constants::MEM_THREADS;
 
     // Order and store buffer prefix in memory
-    for (int i = 0; i < Constants::MEM_THREADS; ++i) {
+    for (uint32_t i = 0; i < Constants::MEM_THREADS; ++i) {
         unsigned char *local_merge_buffer = current_merge_buffer + i * local_merge_buffer_size;
         uint64_t thread_tuples = local_merge_buffer_size / Constants::TUPLE_SIZE;
         uint64_t thread_offset = i * thread_tuples;
@@ -89,12 +89,12 @@ int MergeBenchmark::single_run(const uint16_t run, const char *output_file, uint
 }
 
 void MergeBenchmark::print_key(ChunkInfo *chunk_info) {
-    for (int j = 0; j < Constants::KEY_SIZE; ++j)
+    for (uint32_t j = 0; j < Constants::KEY_SIZE; ++j)
         cout << (chunk_info->buffer + (chunk_info->size - Constants::TUPLE_SIZE))[j];
 }
 
-bool MergeBenchmark::check_flushable(ChunkInfo *chunk_info, int i) {
-    for (int j = 0; j < n_chunks; ++j) {
+bool MergeBenchmark::check_flushable(ChunkInfo *chunk_info, uint32_t i) {
+    for (uint32_t j = 0; j < n_chunks; ++j) {
         if (chunk_info[j].buffer == nullptr || j == i)
             continue;
 
@@ -108,13 +108,13 @@ bool MergeBenchmark::check_flushable(ChunkInfo *chunk_info, int i) {
 }
 
 int MergeBenchmark::find_flushable(MergeBenchmark::ChunkInfo* chunk_info) {
-    for (int i = 0; i < n_chunks; ++i) {
+    for (uint32_t i = 0; i < n_chunks; ++i) {
         if (chunk_info[i].buffer == nullptr)
             continue;
 
         bool flag = true;
 
-        for (int j = 0; j < n_chunks; ++j) {
+        for (uint32_t j = 0; j < n_chunks; ++j) {
             if (chunk_info[j].buffer == nullptr)
                 continue;
 
@@ -188,13 +188,13 @@ void MergeBenchmark::run() {
                 min_tuple = j;
         }
 
-        if (check_flushable(chunk_info, min_tuple)) {
-            i += chunk_info[min_tuple].size - Constants::TUPLE_SIZE;
-            writer.write(chunk_info[min_tuple].buffer, chunk_info[min_tuple].size);
-            chunk_info[min_tuple].buffer = readers[min_tuple]->next(&chunk_info[min_tuple].size);
-            continue;
-        }
-        else
+//        if (check_flushable(chunk_info, min_tuple)) {
+//            i += chunk_info[min_tuple].size - Constants::TUPLE_SIZE;
+//            writer.write(chunk_info[min_tuple].buffer, chunk_info[min_tuple].size);
+//            chunk_info[min_tuple].buffer = readers[min_tuple]->next(&chunk_info[min_tuple].size);
+//            continue;
+//        }
+//        else
             writer.write(chunk_info[min_tuple].buffer, Constants::TUPLE_SIZE);
 
         chunk_info[min_tuple].size -= Constants::TUPLE_SIZE;

@@ -21,7 +21,7 @@ FileInMemColumnStoreBenchmark::FileInMemColumnStoreBenchmark(const char* filenam
 
 
 void FileInMemColumnStoreBenchmark::run() {
-    ThreadPool thread_pool(n_threads);
+    ThreadPool thread_pool(n_threads, 0);
 
     cout << "File size: " << file_size << endl;
 

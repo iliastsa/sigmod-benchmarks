@@ -28,22 +28,21 @@ int main(int argc, char** argv) {
     Constants::WRITE_BUFFER_SIZE = 6 * 1024 * 1024;
     bench = new MergeBenchmark(argv[1], argv[2], get_file_size(argv[1]), 6, Constants::N_THREADS);
 
-    // TODO: Pin threads to a single NUMA socket
     // TODO: Try parallel merge runs
 
 #else
 
     switch (Constants::dataset = determine_dataset(argv[1])) {
         case Constants::SMALL:
-            bench = new FileInMemColumnStoreBenchmark(argv[1], argv[2], Constants::N_THREADS);
+            bench = new FileInMemColumnStoreBenchmark(argv[1], argv[2], Constants::N_THREADS / Constants::N_SOCKETS);
             break;
         case Constants::MEDIUM:
             Constants::WRITE_BUFFER_SIZE = 1024 * 1024;
-            bench = new FileInMemColumnStoreBenchmark(argv[1], argv[2], Constants::N_THREADS);
+            bench = new FileInMemColumnStoreBenchmark(argv[1], argv[2], Constants::N_THREADS / Constants::N_SOCKETS);
             break;
         case Constants::LARGE:
             Constants::WRITE_BUFFER_SIZE = 6 * 1024 * 1024;
-            bench = new MergeBenchmark(argv[1], argv[2], get_file_size(argv[1]), 6, Constants::N_THREADS);
+            bench = new MergeBenchmark(argv[1], argv[2], get_file_size(argv[1]), 6, Constants::N_THREADS / Constants::N_SOCKETS);
             sleep(15);
             break;
         default:

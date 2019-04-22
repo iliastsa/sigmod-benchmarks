@@ -5,6 +5,7 @@
 
 namespace Constants {
     extern const int N_CORES;
+    extern const int N_SOCKETS;
     extern const int N_THREADS;
     extern const uint32_t IO_THREADS;
     extern const uint32_t MEM_THREADS;

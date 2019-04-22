@@ -27,7 +27,7 @@ private:
     int *out_fds;
 
     void print_key(ChunkInfo *chunk_info);
-    bool check_flushable(ChunkInfo *chunk_info, int i);
+    bool check_flushable(ChunkInfo *chunk_info, uint32_t i);
     int find_flushable(ChunkInfo *chunk_info);
 
     int single_run(uint16_t run, const char *output_file, uint64_t start,  Tuple *tuples, uint64_t chunk_size, unsigned char *buffer);
