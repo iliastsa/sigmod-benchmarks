@@ -2,11 +2,13 @@
 #include <Timer.h>
 #include <fcntl.h>
 #include <iostream>
+#include <queue>
 #include <boost/sort/block_indirect_sort/block_indirect_sort.hpp>
 #include <ColumnStoreTask.h>
 #include <ReadSortedRAMTask.h>
 #include <PrepMergeBufferTask.h>
 #include <HybridReadReader.h>
+#include <BigTuple.h>
 #include "MergeBenchmark.h"
 
 using namespace std;
@@ -154,6 +156,7 @@ void MergeBenchmark::run() {
     // Merge
     FileReader **readers = static_cast<FileReader**>(malloc(n_chunks * sizeof(FileReader*)));
 
+
     for (uint64_t i = 0; i < n_chunks; ++i)
         readers[i] = new HybridReadReader(out_fds[i], 0, chunk_size - Constants::MERGE_BUFFER_SIZE, Constants::MERGE_BUFFER_SIZE, merge_buffer + i * Constants::MERGE_BUFFER_SIZE);
 
@@ -164,30 +167,37 @@ void MergeBenchmark::run() {
 
     ChunkInfo *chunk_info = static_cast<ChunkInfo*>(malloc(n_chunks * sizeof(MergeBenchmark::ChunkInfo)));
 
+    priority_queue<ChunkInfo*, vector<ChunkInfo*>, Compare> tuple_pqueue;
 
     // Initialize chunk info
-    for (uint64_t i = 0; i < n_chunks; ++i)
+    for (uint64_t i = 0; i < n_chunks; ++i) {
         chunk_info[i].buffer = readers[i]->next(&chunk_info[i].size);
+        chunk_info[i].idx = i;
+        tuple_pqueue.push(&chunk_info[i]);
+    }
 
-    for (uint64_t i = 0; i < file_size; i += Constants::TUPLE_SIZE) {
-        uint32_t min_tuple = 0;
+    //for (uint64_t i = 0; i < file_size; i += Constants::TUPLE_SIZE) {
+//        uint32_t min_tuple = 0;
 
-        while (chunk_info[min_tuple].buffer == nullptr)
-            min_tuple++;
+//        while (chunk_info[min_tuple].buffer == nullptr)
+//            min_tuple++;
+//
+//        if (min_tuple > n_chunks) {
+//            cout << "widepeepoHappy DETH" << endl;
+//            break;
+//        }
+//
+//        for (uint32_t j = min_tuple + 1; j < n_chunks; ++j) {
+//            if (chunk_info[j].buffer == nullptr)
+//                continue;
+//
+//            if (memcmp(chunk_info[min_tuple].buffer, chunk_info[j].buffer, Constants::KEY_SIZE) > 0)
+//                min_tuple = j;
+//        }
 
-        if (min_tuple > n_chunks) {
-            cout << "widepeepoHappy DETH" << endl;
-            break;
-        }
-
-        for (uint32_t j = min_tuple + 1; j < n_chunks; ++j) {
-            if (chunk_info[j].buffer == nullptr)
-                continue;
-
-            if (memcmp(chunk_info[min_tuple].buffer, chunk_info[j].buffer, Constants::KEY_SIZE) > 0)
-                min_tuple = j;
-        }
-
+    while (!tuple_pqueue.empty()) {
+        ChunkInfo *min_tuple = tuple_pqueue.top();
+        tuple_pqueue.pop();
 //        if (check_flushable(chunk_info, min_tuple)) {
 //            i += chunk_info[min_tuple].size - Constants::TUPLE_SIZE;
 //            writer.write(chunk_info[min_tuple].buffer, chunk_info[min_tuple].size);
@@ -195,15 +205,20 @@ void MergeBenchmark::run() {
 //            continue;
 //        }
 //        else
-            writer.write(chunk_info[min_tuple].buffer, Constants::TUPLE_SIZE);
+        writer.write(min_tuple->buffer, Constants::TUPLE_SIZE);
 
-        chunk_info[min_tuple].size -= Constants::TUPLE_SIZE;
+        min_tuple->size -= Constants::TUPLE_SIZE;
 
-        if (chunk_info[min_tuple].size == 0) {
-            chunk_info[min_tuple].buffer = readers[min_tuple]->next(&chunk_info[min_tuple].size);
+        if (min_tuple->size == 0) {
+            min_tuple->buffer = readers[min_tuple->idx]->next(&min_tuple->size);
+
+            if (min_tuple->buffer == nullptr)
+                continue;
         }
         else
-            chunk_info[min_tuple].buffer += Constants::TUPLE_SIZE;
+            min_tuple->buffer += Constants::TUPLE_SIZE;
+
+        tuple_pqueue.push(min_tuple);
     }
     timer.stop();
 

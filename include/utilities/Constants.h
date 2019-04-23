@@ -11,6 +11,7 @@ namespace Constants {
     extern const uint32_t MEM_THREADS;
 
     extern const uint64_t MERGE_BUFFER_SIZE;
+    extern const uint64_t MERGE_CHUNKS;
 
     extern const uint16_t PAGE_SIZE;
     extern const uint16_t PAGE_SHIFT_AMT;

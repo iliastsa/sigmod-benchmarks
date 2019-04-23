@@ -12,7 +12,8 @@ namespace Constants {
     const uint32_t IO_THREADS = 10;
     const uint32_t MEM_THREADS = 10;
 
-    extern const uint64_t MERGE_BUFFER_SIZE = GB(3);
+    const uint64_t MERGE_BUFFER_SIZE = MB(900);
+    const uint64_t MERGE_CHUNKS = 30;
 
     const uint16_t PAGE_SIZE = 4096;
     const uint16_t PAGE_SHIFT_AMT = 12;
@@ -36,7 +37,8 @@ namespace Constants {
     const uint32_t IO_THREADS = 2;
     const uint32_t MEM_THREADS = 2;
 
-    extern const uint64_t MERGE_BUFFER_SIZE = MB(300);
+    const uint64_t MERGE_BUFFER_SIZE = MB(90);
+    const uint64_t MERGE_CHUNKS = 30;
 
     const uint16_t PAGE_SIZE = 4096;
     const uint16_t PAGE_SHIFT_AMT = 12;

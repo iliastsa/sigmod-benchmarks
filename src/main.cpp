@@ -17,6 +17,7 @@
 #include <InMemoryBenchmark.h>
 #include <FileInMemColumnStoreBenchmark.h>
 #include <MergeBenchmark.h>
+#include <BigTuple.h>
 
 using namespace std;
 
@@ -26,7 +27,7 @@ int main(int argc, char** argv) {
 #ifndef SUBMISSION
 
     Constants::WRITE_BUFFER_SIZE = 6 * 1024 * 1024;
-    bench = new MergeBenchmark(argv[1], argv[2], get_file_size(argv[1]), 6, Constants::N_THREADS);
+    bench = new MergeBenchmark(argv[1], argv[2], get_file_size(argv[1]), Constants::MERGE_CHUNKS, Constants::N_THREADS);
 
     // TODO: Try parallel merge runs
 
@@ -42,7 +43,7 @@ int main(int argc, char** argv) {
             break;
         case Constants::LARGE:
             Constants::WRITE_BUFFER_SIZE = 6 * 1024 * 1024;
-            bench = new MergeBenchmark(argv[1], argv[2], get_file_size(argv[1]), 6, Constants::N_THREADS / Constants::N_SOCKETS);
+            bench = new MergeBenchmark(argv[1], argv[2], get_file_size(argv[1]), Constants::MERGE_CHUNKS, Constants::N_THREADS / Constants::N_SOCKETS);
             sleep(15);
             break;
         default:

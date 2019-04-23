@@ -9,8 +9,15 @@
 class MergeBenchmark : public Benchmark {
 private:
     struct ChunkInfo {
+        uint32_t idx;
         unsigned char *buffer;
         uint64_t size;
+    };
+
+    struct Compare {
+        bool operator()(const ChunkInfo* a, const ChunkInfo* b) const {
+            return memcmp(a->buffer, b->buffer, Constants::KEY_SIZE) > 0;
+        }
     };
 
     const char *input_file;
