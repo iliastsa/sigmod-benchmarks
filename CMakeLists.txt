@@ -35,7 +35,8 @@ set(SOURCES
     src/utilities/AsyncUtils.cpp
     src/utilities/Constants.cpp
     src/benchmarks/MergeBenchmark.cpp
-    src/readers/HybridReadReader.cpp)
+    src/readers/HybridReadReader.cpp
+    src/benchmarks/BigTupleMergeBenchmark.cpp)
 
 add_executable(SigmodBenchmarks ${SOURCES})
 add_executable(local_sort ${SOURCES})
