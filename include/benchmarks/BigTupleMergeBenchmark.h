@@ -11,6 +11,24 @@
 
 class BigTupleMergeBenchmark : public Benchmark {
 private:
+    struct ChunkScheduleInfo {
+        ChunkScheduleInfo(uint16_t chunk_num, uint64_t chunk_size)
+                : chunk_num(chunk_num), chunk_size(chunk_size) {}
+
+        uint16_t chunk_num;
+        uint64_t chunk_size;
+    };
+
+    struct MergeChunk {
+
+        unsigned char* mem;
+        uint64_t mem_size;
+        uint64_t disk_residue;
+    };
+
+
+
+    //TODO REVIEW
     struct ChunkInfo {
         uint32_t idx;
         unsigned char *buffer;
