@@ -22,21 +22,6 @@
 
 using namespace std;
 
-class Copy1GBTask : public ThreadPool::Task {
-
-public:
-    unsigned char* buffer;
-
-    Copy1GBTask(unsigned char* buffer) : buffer(buffer) {}
-
-    void run() override {
-        unsigned char* target = buffer - GB(1);
-
-        memcpy(target, buffer, GB(1));
-    }
-};
-
-
 
 int main(int argc, char** argv) {
     Benchmark* bench;
@@ -45,10 +30,10 @@ int main(int argc, char** argv) {
 
 //    Constants::WRITE_BUFFER_SIZE = 6 * 1024 * 1024;
 //    bench = new MergeBenchmark(argv[1], argv[2], get_file_size(argv[1]), Constants::MERGE_CHUNKS, Constants::N_THREADS);
-    Constants::WRITE_BUFFER_SIZE = 6 * 1024 * 1024;
-    bench = new BigTupleMergeBenchmark(argv[1], argv[2], get_file_size(argv[1]), Constants::MERGE_CHUNKS, Constants::N_THREADS);
+    //Constants::WRITE_BUFFER_SIZE = 6 * 1024 * 1024;
+    Constants::WRITE_BUFFER_SIZE = 1024;
+    bench = new BigTupleMergeBenchmark(argv[1], argv[2], get_file_size(argv[1]), Constants::MERGE_CHUNKS);
 
-    // TODO: Try parallel merge runs
 
 #else
 
@@ -62,7 +47,7 @@ int main(int argc, char** argv) {
             break;
         case Constants::LARGE:
             Constants::WRITE_BUFFER_SIZE = 6 * 1024 * 1024;
-            bench = new MergeBenchmark(argv[1], argv[2], get_file_size(argv[1]), Constants::MERGE_CHUNKS, Constants::N_THREADS / Constants::N_SOCKETS);
+            bench = new BigTupleMergeBenchmark(argv[1], argv[2], get_file_size(argv[1]), Constants::MERGE_CHUNKS);
             sleep(15);
             break;
         default:

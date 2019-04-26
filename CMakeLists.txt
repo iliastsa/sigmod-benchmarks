@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.5)
 project(SigmodBenchmarks)
 
 set(CMAKE_CXX_STANDARD 11)
-#set(CMAKE_CXX_FLAGS "-Ofast -funroll-loops -Wall")
+set(CMAKE_CXX_FLAGS "-Ofast -funroll-loops -Wall")
 #set(CMAKE_CXX_FLAGS  "-fsanitize=address")
 
 include_directories(include/libs
