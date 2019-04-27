@@ -21,11 +21,19 @@ public:
     void run() override {
         uint64_t bytes_written = 0;
 
+        Timer t;
+        t.run();
+
         while (bytes_written < size) {
             ssize_t bytes = pwrite(fd, buffer, size - bytes_written, offset + bytes_written);
 
             bytes_written += bytes;
         }
+
+        t.stop();
+
+        std::cout << "Chunk with fd : " << fd  << " Write time : "
+                  << std::fixed << t.elapsedMilliseconds() << " ms" << std::endl;
     }
 };
 

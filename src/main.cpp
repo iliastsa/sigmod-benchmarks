@@ -29,11 +29,11 @@ int main(int argc, char** argv) {
 #ifndef SUBMISSION
 
 //    Constants::WRITE_BUFFER_SIZE = 6 * 1024 * 1024;
-//    bench = new MergeBenchmark(argv[1], argv[2], get_file_size(argv[1]), Constants::MERGE_CHUNKS, Constants::N_THREADS);
+//
     //Constants::WRITE_BUFFER_SIZE = 6 * 1024 * 1024;
-    Constants::WRITE_BUFFER_SIZE = 1024;
+    Constants::WRITE_BUFFER_SIZE = 6 * 1024 * 1024;
     bench = new BigTupleMergeBenchmark(argv[1], argv[2], get_file_size(argv[1]), Constants::MERGE_CHUNKS);
-
+    //bench = new MergeBenchmark(argv[1], argv[2], get_file_size(argv[1]), Constants::MERGE_CHUNKS, Constants::N_THREADS);
 
 #else
 
@@ -56,7 +56,12 @@ int main(int argc, char** argv) {
 
 #endif
 
+    Timer t;
+    t.run();
     bench->run();
+    t.stop();
+
+    cout << "Total time : " << t.elapsedMilliseconds() << " ms" << endl;
 
 //    ThreadPool t_pool0(20, 0);
 //    ThreadPool t_pool1(20, 1);

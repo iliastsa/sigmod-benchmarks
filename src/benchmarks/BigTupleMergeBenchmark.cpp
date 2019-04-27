@@ -46,7 +46,7 @@ void BigTupleMergeBenchmark::run() {
 
     //TODO Tpool sizes
     ThreadPool sort_tpool(1, 0);
-    ThreadPool io_tpool(40, 0);
+    ThreadPool io_tpool(40);
 
     uint64_t file_offset = 0;
     uint16_t chunk_counter = 0;
@@ -56,10 +56,13 @@ void BigTupleMergeBenchmark::run() {
 
     /* Run schedule */
 
+    Timer t;
+
     const uint64_t buffer_residue_size = chunk_size - Constants::MERGE_BUFFER_SIZE;
 
     for (auto chunk_num : chunk_schedule) {
 
+        t.run();
         unsigned char* current_base_mem = global_mem + chunk_counter * Constants::MERGE_BUFFER_SIZE;
 
         for (uint16_t i = 0; i < chunk_num; i++) {
@@ -86,6 +89,11 @@ void BigTupleMergeBenchmark::run() {
         sort_tpool.wait_all();
         io_tpool.wait_all();
 
+        t.stop();
+        cout << "Processed " << chunk_counter << " chunks in " <<
+                       fixed << t.elapsedMilliseconds() << " ms" << endl;
+
+        t.run();
 
         /* Cleanup for next stage */
 
@@ -124,7 +132,10 @@ void BigTupleMergeBenchmark::run() {
 
         }
 
+        t.stop();
 
+        cout << "Cleanup time for " << chunk_counter << " chunks : " <<
+             fixed << t.elapsedMilliseconds() << " ms" << endl;
     }
 
 

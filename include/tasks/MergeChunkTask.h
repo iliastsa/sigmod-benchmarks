@@ -32,10 +32,14 @@ public:
 
         /* Read chunk */
 
+        Timer t;
+        t.run();
         ReadReader reader(in_fd, file_offset, file_offset + chunk_size, 0, mem_start, true);
         uint64_t sz;
         reader.next(&sz);
-
+        t.stop();
+        std::cout << "Chunk with fd : " << out_fd  << " Read time : "
+                  << std::fixed << t.elapsedMilliseconds() << " ms" << std::endl;
         /* Process chunk */
 
         uint64_t num_tuples = chunk_size / Constants::TUPLE_SIZE;
